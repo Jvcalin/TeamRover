@@ -8,6 +8,9 @@ Code for Roger the Rover - an in-house robot on wheels.
 - Servo control
 - Motor control
 - OLED Display
+- Vibration Sensors
+- Light sensors
+- Real time clock
 
 ## Raspberry Pi Zero + Matrix One Creator
 - LED Array for feedback
@@ -17,6 +20,7 @@ Code for Roger the Rover - an in-house robot on wheels.
 - WiFi Communication
 - RPi Camera
 - Pixy2
+
 
 ## Raspberry Pi
 - Executive functions
