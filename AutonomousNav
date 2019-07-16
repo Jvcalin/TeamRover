@@ -1,0 +1,54 @@
+Autonomous Navigation with Proximity Sensors
+
+Sensory Hardware
+The main sensor is in the front.  Other sensors will update the Proximity Array faster.  Each sensor will detect the distance from the direction its facing.
+
+Accelerometer - used to determine Position in the map.  Changes current speed.  Calculate position by speed + time.
+
+Gyroscope - Determine rotation.  For now we will only be concerned with rotation on Z axis.
+
+Magnetometer - Determine Magnetic north.  Focal point for Gyroscope.
+
+
+Algorithm Requirements
+- Uses clock cycles/loops 
+- Must respond to changes at any time.
+- Should be layerable (layers of processes).  Each algo should be able to work up or down a layer.
+- The "picture of the world" is updated over time as more and more data is processed.
+
+
+Key Objects:
+
+Main
+ProxArray - array of points in a circle.  Each position is numbered.  This numbering is fixed to magnetic north.  Each point contains a distance.
+- Orientation - Fixed to Magnetic north.
+- Direction - Which way the buggy is facing and direction of travel.
+- Objective - Direction of the target location.  Recalculated based on position on Map.
+
+The prox array is recalculated as data comes in from sensors or as the unit moves.
+
+Direction
+- Recalculated when collision is imminent or has occurred or if major opening towards objective has been found (using side sensors)
+- Calculation steps:
+-- Travel along the circle in the direction of the objective, find an opening.
+--- Opening - determined as the midpoint between two points on circle.
+--- Find first high delta (tweak how high -- or percentage?) from close to far
+---- Find second high delta from far to close - or - after rotation is greater than 1/4 (?)
+
+
+Maps - A grid of points on an x/y plane
+-- Contain obstacles - redrawn constantly by sensor data
+-- Interest Points
+--- Objectives
+--- Current position
+--- Spots where a major turn occurred (1/4 ?)
+- Maps are saved based on GPS coordinates.
+- Snapshots are taken every time unit reaches an objective - snapshots are periodically (daily?) combined into one map.
+
+Path Finding 
+- Draw a path from each interest point to another while avoiding obstacles.
+- Each segment of the path becomes the start + objective
+- Objective is reached when unit is x distance away from objective. After which the next objective in the path is set.
+- Path Finding can be layered.  So a subpath is one segment of the path.  While a superpath is composed of multiple connected paths.
+- Over time, paths become more direct, as more points are added to the map.
+
