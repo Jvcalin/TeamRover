@@ -1,6 +1,6 @@
 
 
-int speakerPin = 12;
+int speakerPin = 9;
  
 int numTones = 10;
 int tones[] = {261, 277, 294, 311, 330, 349, 370, 392, 415, 440};
@@ -40,7 +40,7 @@ void PlaySwoopUp() {
   for (int i = 0; t < 440; i++){
     t = (i*i * 0.75) + 261 ;
     tone(speakerPin, round(t));
-    Serial.println(t);
+    SPrintln(t);
     delay(50);
   }
   noTone(speakerPin);
@@ -53,7 +53,7 @@ void PlaySwoopDown() {
   for (int i = 0; t > 261; i++){
     t = 440 - (i*i * 0.75);
     tone(speakerPin, round(t));
-    Serial.println(t);
+    SPrintln(t);
     delay(50);
   }
   noTone(speakerPin);
