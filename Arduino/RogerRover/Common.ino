@@ -45,3 +45,20 @@ void SPrintln(int value) {
     OLEDPrintln(value);
   }
 }
+
+void blinkRedLED() {
+    //pin 0 is reverse wired
+   digitalWrite(redLed, HIGH);
+   delay(250);
+   digitalWrite(redLed, LOW);
+   delay(1000);
+   digitalWrite(redLed, HIGH);
+   
+}
+
+int FlipValue(int value) {
+  if (value == HIGH)
+    return LOW;
+  else
+    return HIGH;
+}

@@ -1,6 +1,6 @@
 
 
-int speakerPin = 9;
+#define speakerPin 0
  
 int numTones = 10;
 int tones[] = {261, 277, 294, 311, 330, 349, 370, 392, 415, 440};
@@ -24,6 +24,23 @@ int tones[] = {261, 277, 294, 311, 330, 349, 370, 392, 415, 440};
 
 int tempo = 250;
 
+void SetupSounds() {
+  SPrintln("Sound Setup");
+  pinMode(speakerPin, OUTPUT);
+  //PlayTone();
+  PlayDuntDuntDunt();
+}
+
+void SwitchToSound() {
+  SPrintln("Switch to Sound");
+  pinMode(speakerPin, OUTPUT);
+}
+
+void SwitchToInterrupt() {
+  SPrintln("Switch to Interrupt");
+  pinMode(speakerPin, INPUT);
+}
+
 void PlayTone() {
   for (int i = 0; i < numTones; i++)
   {
@@ -40,10 +57,18 @@ void PlaySwoopUp() {
   for (int i = 0; t < 440; i++){
     t = (i*i * 0.75) + 261 ;
     tone(speakerPin, round(t));
-    SPrintln(t);
+    //SPrintln(t);
     delay(50);
   }
   noTone(speakerPin);
+}
+
+void PlayBeep() {
+  PlayGs(QUARTER);
+}
+
+void PlayDeepBeep() {
+  PlayC(QUARTER);
 }
 
 void PlaySwoopDown() {
@@ -53,18 +78,22 @@ void PlaySwoopDown() {
   for (int i = 0; t > 261; i++){
     t = 440 - (i*i * 0.75);
     tone(speakerPin, round(t));
-    SPrintln(t);
+    //SPrintln(t);
     delay(50);
   }
   noTone(speakerPin);
 }
 
 void PlayDuntDuntDunt() {
+  //SwitchToSound();
+  
   PlayF(QUARTER);
   PlayRest(EIGHTH);
   PlayC(QUARTER);
   PlayRest(EIGHTH);
   PlayA(WHOLE);
+
+  //SwitchToInterrupt();
 }
 
 void PlayRest(int tlength) {

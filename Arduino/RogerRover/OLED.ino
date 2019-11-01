@@ -41,7 +41,7 @@ void SetupOLED() {
    display.setCursor(0,0);
   
    pinMode(BUTTON_A, INPUT_PULLUP);
-   pinMode(BUTTON_B, INPUT_PULLUP);
+   //pinMode(BUTTON_B, INPUT_PULLUP);
    pinMode(BUTTON_C, INPUT_PULLUP);
    
    SPrintln("Starting OLED");
@@ -51,7 +51,7 @@ void SetupOLED() {
 void OLEDTick() {
   //Checks to see if the buttons have been pressed
    if(!digitalRead(BUTTON_A)) DoButtonA();
-   if(!digitalRead(BUTTON_B)) DoButtonB();
+   //if(!digitalRead(BUTTON_B)) DoButtonB();
    if(!digitalRead(BUTTON_C)) DoButtonC();
    
 }

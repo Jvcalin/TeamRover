@@ -168,3 +168,39 @@ void CheckVBounds() {
    else if (vtargetpos < V_MIN)
      vtargetpos = V_MIN;  
 }
+
+
+
+
+void TestServo() {
+
+  switch (timer) {
+    case 0:
+      ResetServos();
+      break;
+    case 3000:
+      ServoMoveLeft(45);
+      break;
+    case 6000:
+      ServoMoveUp(40);
+      break;
+    case 9000:
+      ServoMoveDown(80);
+      break;
+    case 12000:
+      ServoMoveRight(90);
+      break;
+    case 15000:
+      ServoMoveLeft(45);
+      break;
+    case 18000:
+      ServoMoveUp(40);
+      break;
+    case 21000:
+      ResetServos();
+      break;
+    default:
+      break;
+  }
+
+}
