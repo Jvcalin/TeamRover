@@ -72,6 +72,10 @@ void OLEDPrint(int value) {
    currentLine = currentLine + value;
 }
 
+void OLEDPrint(String value) {
+   currentLine = currentLine + value;
+}
+
 void OLEDPrintln(char* str) {
    currentLine = currentLine + str;
    PushDisplay(currentLine);

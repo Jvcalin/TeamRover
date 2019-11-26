@@ -17,30 +17,30 @@
 #define dFAR 48
 #define dNOSIGNAL 300
 
-#define isTOUCHING 111
-#define isCLOSE 222
-#define isNEAR 333
-#define isMEDIUM 444
-#define isFAR 555
-#define isNOSIGNAL 000
+#define isTOUCHING 10
+#define isCLOSE 20
+#define isNEAR 30
+#define isMEDIUM 40
+#define isFAR 50
+#define isNOSIGNAL 99
 
 int currentAction = mSTOP;
-int waitTimer = 0;
+int waitTimer = 100;
 bool spinning = false;
 
 int getDistance(int dist) {
   if (dist > dNOSIGNAL)
-    return dNOSIGNAL;
+    return isNOSIGNAL;
   else if (dist > dFAR)
-    return dFAR;
+    return isFAR;
   else if (dist > dMEDIUM)
-    return dMEDIUM;
+    return isMEDIUM;
   else if (dist > dNEAR)
-    return dNEAR;
+    return isNEAR;
   else if (dist > dCLOSE)
-    return dCLOSE;
+    return isCLOSE;
   else
-    return dTOUCHING;
+    return isTOUCHING;
 }
 
 
@@ -55,13 +55,14 @@ void ActionOff() {
 
 
 void GoStop(int wait = 0) {
+  //SPrintln("ActionStop");
   waitTimer = wait;
   currentAction = mSTOP;
 }
 
 void ActionStop() {
   
-  if (currSpeed > 0 || currentAction != mSTOP) {
+  if (getCurrSpeed() > 0 || currentAction != mSTOP) {
     stopRun();
     GoStop();
     return;
@@ -72,7 +73,7 @@ void ActionStop() {
     return;
   }
     
-  if (getDistance(fDistance) == isCLOSE && getDistance(bDistance) == isCLOSE) {
+  if (getDistance(fDistance) == isTOUCHING && getDistance(bDistance) == isTOUCHING) {
     //Both front and back are covered
     GoOff();
     PlaySwoopDown();
@@ -92,7 +93,7 @@ void ActionStop() {
   } else if (getDistance(bDistance) == isCLOSE) {
     //Wall behind
     GoForward();
-  } else if (getDistance(fDistance) == isCLOSE) {
+  } else if (getDistance(fDistance) > isCLOSE) {
     //Default movement
     GoForward();
   }  
@@ -107,7 +108,7 @@ void ActionForward() {
     return;
   }
 
-  if (currSpeed == 0 || currentAction != mFORWARD) {
+  if (getCurrSpeed() == 0 || currentAction != mFORWARD) {
     goForward();
     waitTimer = 50;  
     GoForward();
@@ -127,19 +128,19 @@ void ActionForward() {
       
   if (getDistance(fDistance) >= isFAR) {
     //No objects immediately ahead
-    if (currSpeed < MAX_SPEED) {
+    if (getCurrSpeed() < MAX_SPEED) {
       goFaster();
       waitTimer = 100;  
     } 
   } else if (getDistance(fDistance) <= isMEDIUM) {
     //Object close
-    if (currSpeed > 2) {
+    if (getCurrSpeed() > 2) {
       goSlower();
       waitTimer = 20;
     }
   } else if (getDistance(fDistance) <= isNEAR) {
     //Object very close
-    if (currSpeed > 1) {
+    if (getCurrSpeed() > 1) {
       goSlower();
     }
   } 
@@ -151,7 +152,12 @@ void ActionSpinLeft() {
     spinLeft(3);
     spinning = true;
   }
-
+  if (getDistance(fDistance) == isTOUCHING && getDistance(bDistance) == isTOUCHING) {
+    //Both front and back are covered
+    GoOff();
+    PlaySwoopDown();
+    SPrintln("OFF");
+  }
   if (getDistance(fDistance) >= isNEAR && getDistance(rDistance) >= isNEAR && getDistance(lDistance) >= isNEAR) {
     spinning = false;
     GoStop(25);
@@ -164,7 +170,12 @@ void ActionSpinRight() {
     spinRight(3);
     spinning = true;
   }
-
+  if (getDistance(fDistance) == isTOUCHING && getDistance(bDistance) == isTOUCHING) {
+    //Both front and back are covered
+    GoOff();
+    PlaySwoopDown();
+    SPrintln("OFF");
+  }
   if (getDistance(fDistance) >= isNEAR && getDistance(rDistance) >= isNEAR && getDistance(lDistance) >= isNEAR) {
     spinning = false;
     GoStop(25);
@@ -173,8 +184,15 @@ void ActionSpinRight() {
 
 void ActionReverse() {
   
-  if (currSpeed == 0) {
+  if (getCurrSpeed() == 0) {
     goReverse();
+  }
+  
+  if (getDistance(fDistance) == isTOUCHING && getDistance(bDistance) == isTOUCHING) {
+    //Both front and back are covered
+    GoOff();
+    PlaySwoopDown();
+    SPrintln("OFF");
   }
   
   if (waitTimer > 0) {
@@ -189,7 +207,7 @@ void ActionReverse() {
       GoSpinLeft();
     else if (rDistance > lDistance)
       GoSpinRight(); 
-  } else if (currSpeed > -2 && currSpeed > MIN_SPEED) {
+  } else if (getCurrSpeed() > -2 && getCurrSpeed() > MIN_SPEED) {
     goFaster();
     waitTimer = 50;
   }
@@ -199,10 +217,10 @@ void ActionReverse() {
 
 void MotorsTick() {
 
-  if (getDistance(fDistance) == isNOSIGNAL)
+  if (getDistance(fDistance) > isNOSIGNAL)
     fDistance = (rDistance + lDistance);// 2;
 
-  if (getDistance(rDistance) == isNOSIGNAL)
+  if (getDistance(rDistance) > isNOSIGNAL)
     rDistance = (fDistance + lDistance);// 2;
 
   if (getDistance(lDistance) > dNOSIGNAL)
@@ -231,22 +249,50 @@ void MotorsTick() {
   
 }
 
+String getCurrentAction() {
+  switch (currentAction) {
+    case mOFF:
+      return "Off";
+      break;
+    case mFORWARD:
+      return "Forward";
+      break;
+    case mSPINLEFT:
+      return "SpinLeft";
+      break;
+    case mSPINRIGHT:
+      return "SpinRight";
+      break;
+    case mREVERSING:
+      return "Reversing";
+      break;
+    case mSTOP:
+      return "Stop";
+      break;
+  }
+}
+
 void GoOff() {
+  //SPrintln("ActionOff");
   currentAction = mOFF;
 }
 
 void GoForward() {
+  //SPrintln("ActionForward");
   currentAction = mFORWARD;
 }
 
 void GoSpinLeft() {
+  //SPrintln("ActionSpinLeft");
   currentAction = mSPINLEFT;
 }
 
 void GoSpinRight() {
+  //SPrintln("ActionSpinRight");
   currentAction = mSPINRIGHT;
 }
 
 void GoReverse() {
+  //SPrintln("ActionReverse");
   currentAction = mREVERSING;
 }

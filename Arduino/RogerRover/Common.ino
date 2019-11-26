@@ -5,7 +5,10 @@
 
 void SetupSerial(){
    Serial.begin(115200);
+   Serial.println();
+   Serial.println();
    SetupOLED();
+   SPrintln("");
 }
 
 
@@ -28,6 +31,14 @@ void SPrint(int value) {
   }  
 }
 
+void SPrint(String value) {
+  if (DEBUG) {
+    Serial.print(value);
+  }
+  if (OLED) {
+    OLEDPrint(value);
+  }  
+}
 void SPrintln(char* str) {
   if (DEBUG) {
     Serial.println(str);

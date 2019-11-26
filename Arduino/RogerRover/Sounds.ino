@@ -28,7 +28,7 @@ void SetupSounds() {
   SPrintln("Sound Setup");
   pinMode(speakerPin, OUTPUT);
   //PlayTone();
-  PlayDuntDuntDunt();
+  PlayBeep();
 }
 
 void SwitchToSound() {
@@ -64,6 +64,7 @@ void PlaySwoopUp() {
 }
 
 void PlayBeep() {
+  SPrintln("PlayBeep!");
   PlayGs(QUARTER);
 }
 
@@ -86,7 +87,7 @@ void PlaySwoopDown() {
 
 void PlayDuntDuntDunt() {
   //SwitchToSound();
-  
+  SPrintln("DuntDuntDunt!");
   PlayF(QUARTER);
   PlayRest(EIGHTH);
   PlayC(QUARTER);

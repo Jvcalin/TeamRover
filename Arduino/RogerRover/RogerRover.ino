@@ -90,8 +90,8 @@ Serial.begin(115200);
   delay(1000);
   SetupMotors();
   delay(1000);
-  //SetupSounds();
-  //delay(1000);
+  SetupSounds();
+  delay(1000);
   //SetupServos();
   delay(1000);
   //SetupWifi();
@@ -142,27 +142,16 @@ void loop() {
 //Ultrasonic Sensor
 if (timer1 > 50 && true && !IsOff()) {
   timer1 = 0;
-    
-  SPrint(fDistance);
-  SPrint("-");
-  SPrint(lDistance);
-  SPrint("-");
-  SPrint(rDistance);
-  SPrint("-");
-  SPrint(bDistance);
-  SPrintln("");
+
+  printUltrasonicSensorReadings();
+  readBatterySensor();
 
   redLedState = FlipValue(redLedState);
   pinMode(redLed, OUTPUT);
   digitalWrite(redLed, redLedState);
 }
 
-
-  ultrasonicSensorDetectLeft();
-  ultrasonicSensorDetectFront();
-  ultrasonicSensorDetectBack();
-  ultrasonicSensorDetectRight();
-
+  SensorsTick();
  
   delay(10);
   

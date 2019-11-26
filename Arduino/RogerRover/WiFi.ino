@@ -4,8 +4,8 @@
 
 aREST rest = aREST();
 
-const char* ssid = "wifi-name";
-const char* password = "wifi-pass";
+const char* ssid = "Daenerys";
+const char* password = "jonandpaul";
 
 // The port to listen for incoming TCP connections 
 #define LISTEN_PORT           80

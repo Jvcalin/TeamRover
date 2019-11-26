@@ -26,7 +26,7 @@
 #define LEFT 1003;
 #define RIGHT 1004;
 
-//Adafruit_INA219 ina219(0x41);
+Adafruit_INA219 ina219(0x41);
 //Adafruit_INA219 ina219_A;
 //Adafruit_INA219 ina219_B(0x41);
 
@@ -68,7 +68,7 @@ void SetupSensors() {
     // Initialize the INA219.
     // By default the initialization will use the largest range (32V, 2A).  However
     // you can call a setCalibration function to change this range (see comments).
-    //ina219.begin();
+    ina219.begin();
     // To use a slightly lower 32V, 1A range (higher precision on amps):
     //ina219.setCalibration_32V_1A();
     // Or to use a lower 16V, 400mA range (higher precision on volts and amps):
@@ -77,6 +77,11 @@ void SetupSensors() {
 }
 
 //Public Functions
+
+void SensorsTick() {
+  ultrasonicSensorDetectAll();
+}
+
 bool OpSensorDetect() {
   int reading = analogRead(opSensorPin);
   float proximityV = (float)reading * 5.0 / 1023.0;
@@ -92,6 +97,29 @@ bool OpSensorDetect() {
   }
 }
 
+void printUltrasonicSensorReadings() {
+      
+  SPrint(getDistance(fDistance));
+  SPrint("-");
+  SPrint(getDistance(lDistance));
+  SPrint("-");
+  SPrint(getDistance(rDistance));
+  SPrint("-");
+  SPrint(getDistance(bDistance));
+  SPrint("-");
+  SPrint(getCurrentAction());
+  SPrint("-");
+  SPrint(getCurrSpeed());
+  SPrintln("");
+
+}
+
+void ultrasonicSensorDetectAll() {
+  ultrasonicSensorDetectLeft();
+  ultrasonicSensorDetectFront();
+  ultrasonicSensorDetectBack();
+  ultrasonicSensorDetectRight();
+}
 void ultrasonicSensorDetectFront() {
    //SPrint("Front: ");
    fDistance = ultrasonicSensorDetect(fTrigPin, fEchoPin);
@@ -165,27 +193,27 @@ void SenseVibration() {
 }
 
 
-//void readBatterySensor() {
-//  float shuntvoltage = 0;
-//  float busvoltage = 0;
-//  float current_mA = 0;
-//  float loadvoltage = 0;
-//  float power_mW = 0;
+void readBatterySensor() {
+  float shuntvoltage = 0;
+  float busvoltage = 0;
+  float current_mA = 0;
+  float loadvoltage = 0;
+  float power_mW = 0;
 
-//  shuntvoltage = ina219.getShuntVoltage_mV();
-//  busvoltage = ina219.getBusVoltage_V();
-//  current_mA = ina219.getCurrent_mA();
-//  power_mW = ina219.getPower_mW();
-//  loadvoltage = busvoltage + (shuntvoltage / 1000);
+  shuntvoltage = ina219.getShuntVoltage_mV();
+  busvoltage = ina219.getBusVoltage_V();
+  current_mA = ina219.getCurrent_mA();
+  power_mW = ina219.getPower_mW();
+  loadvoltage = busvoltage + (shuntvoltage / 1000);
   
-//  SPrint("Bus Voltage:   "); SPrint(busvoltage); SPrintln(" V");
-//  SPrint("Shunt Voltage: "); SPrint(shuntvoltage); SPrintln(" mV");
-//  SPrint("Load Voltage:  "); SPrint(loadvoltage); SPrintln(" V");
-//  SPrint("Current:       "); SPrint(current_mA); SPrintln(" mA");
-//  SPrint("Power:         "); SPrint(power_mW); SPrintln(" mW");
-//  SPrintln("");
+  SPrint("Bus Voltage:   "); SPrint(busvoltage); SPrintln(" V");
+  SPrint("Shunt Voltage: "); SPrint(shuntvoltage); SPrintln(" mV");
+  SPrint("Load Voltage:  "); SPrint(loadvoltage); SPrintln(" V");
+  SPrint("Current:       "); SPrint(current_mA); SPrintln(" mA");
+  SPrint("Power:         "); SPrint(power_mW); SPrintln(" mW");
+  SPrintln("");
 
-//  delay(2000);
-//}
+  delay(2000);
+}
 
 //Private Functions

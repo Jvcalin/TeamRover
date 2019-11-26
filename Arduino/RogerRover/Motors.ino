@@ -31,6 +31,10 @@ void SetupMotors() {
 
 
 // Low level functions
+
+int getCurrSpeed() {
+  return currSpeed;
+}
 void motorMove(int mSpeed) {
 
    SPrint("Both: ");
