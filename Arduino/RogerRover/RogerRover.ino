@@ -94,7 +94,7 @@ Serial.begin(115200);
   delay(1000);
   //SetupServos();
   delay(1000);
-  //SetupWifi();
+  SetupWifi();
   delay(1000);
   
 //Serial.println("Start Program");  
@@ -144,7 +144,7 @@ if (timer1 > 50 && true && !IsOff()) {
   timer1 = 0;
 
   printUltrasonicSensorReadings();
-  readBatterySensor();
+  //readBatterySensor();
 
   redLedState = FlipValue(redLedState);
   pinMode(redLed, OUTPUT);

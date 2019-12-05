@@ -13,7 +13,7 @@ void SetupSerial(){
 
 
 
-void SPrint(char* str) {
+void SPrint(const char* str) {
   if (DEBUG) {
       Serial.print(str);
   }
@@ -39,7 +39,7 @@ void SPrint(String value) {
     OLEDPrint(value);
   }  
 }
-void SPrintln(char* str) {
+void SPrintln(const char* str) {
   if (DEBUG) {
     Serial.println(str);
   }
