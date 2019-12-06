@@ -64,7 +64,7 @@ void ClearOLED() {
    display.setCursor(0,0);
 }
 
-void OLEDPrint(char* str) {
+void OLEDPrint(const char* str) {
    currentLine = currentLine + str;
 }
 
@@ -76,7 +76,7 @@ void OLEDPrint(String value) {
    currentLine = currentLine + value;
 }
 
-void OLEDPrintln(char* str) {
+void OLEDPrintln(const char* str) {
    currentLine = currentLine + str;
    PushDisplay(currentLine);
 }
