@@ -16,12 +16,25 @@ class EventNotifier:
 			f(value)
 
 
+#eventually, we would like the executive
+#to be able to create events and link a reaction to them
 
+#Context is a set of events that can be loaded or unloaded
+#  
+
+
+#what to do when an event occurs
 class Sense:
 	def Forward():
 		pass
 
-	def Spin():
+	def Backward():
+		pass
+
+	def SpinLeft():
+		pass
+
+	def SpinRight():
 		pass
 
 	def TipForward():
@@ -39,14 +52,11 @@ class Sense:
 	def Brake():
 		pass
 
-	def Backward():
-		pass
-
-	def Collision():
+	def Bump():
 		pass
 
 
-
+#check if an event occurred
 class Did:
 	def GoForward():
 		pass
@@ -54,7 +64,10 @@ class Did:
 	def GoBackward():
 		pass
 
-	def Spin():
+	def SpinLeft():
+		pass
+
+	def SpinRight():
 		pass
 
 	def TipForward():
@@ -72,10 +85,7 @@ class Did:
 	def Brake():
 		pass
 
-	def Backward():
-		pass
-
-	def Collision():
+	def Bump():
 		pass
 
 
