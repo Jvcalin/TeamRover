@@ -3,6 +3,8 @@ import time
 
 #Topics
 #roger/status
+#roger/status/feather
+#roger/status/matrix
 
 #roger/cmd/feather/beep => "swoopup"
 #roger/cmd/feather/action => "forward"

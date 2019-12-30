@@ -94,7 +94,7 @@ Serial.begin(115200);
   delay(1000);
   //SetupServos();
   delay(1000);
-  SetupWifi();
+  SetupWiFi();
   delay(1000);
   
 //Serial.println("Start Program");  
@@ -157,6 +157,8 @@ if (timer1 > 50 && true && !IsOff()) {
   
   MotorsTick();
   //SenseVibration();
+
+  WiFiTick();
 
   long timeElapsed = millis() - startLoop;
   //SPrint("Loop:");

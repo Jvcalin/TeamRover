@@ -1,9 +1,9 @@
-import presence.proximity as Prox
-import presence.grid as Grid
+import proximity as Prox
+import grid as Grid
 import common.mycollections as Coll
-import presence.matrixcreator as Matrix
-import presence.featherhuzzah as Feather
-import presence.events as Events
+import matrixcreator as Matrix
+import featherhuzzah as Feather
+import common.events as Events
 
 
 class Rover:
