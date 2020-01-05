@@ -46,25 +46,28 @@ theRover = None
 
 def initializemqtt(rover):
 	theRover = rover
-	rogerMqtt = mqtt.client("RogerMQTT_Pi",False) #clean sessions =false so subsriptions are maintained and messages are saved if disconnected
+	rogerMqtt = mqtt.Client("RogerMQTT_Pi",False) #clean sessions =false so subsriptions are maintained and messages are saved if disconnected
 	rogerMqtt.on_message = on_message
 	rogerMqtt.on_connect = on_connect
-	rogerMqtt.connect("192.169.1.25", 1883)
+	rogerMqtt.connect("192.168.1.25", 1883)
 	rogerMqtt.subscribe("roger/cmd/#", 2)
 	rogerMqtt.subscribe("roger/sensors/#", 2)
 	rogerMqtt.loop_start()
-	rogerMqtt.publish("roger/status", "presence loop starting", 2, true)
+	rogerMqtt.publish("roger/status", "presence loop starting", 2, True)
 	
 def closemqtt():
-	rogerMqtt.publish("roger/status", "presence loop stopping", 2, true)
+	rogerMqtt.publish("roger/status", "presence loop stopping", 2, True)
 	rogerMqtt.loop_stop()
 
 def on_message(client, userdata, message):
 	print("got message")
 	print(client)
 	print(userdata)
-	print(message)
-
+	print(message.payload.decode("utf-8"))
+	print(message.topic)
+	print(message.retain)
+	print(message.qos)
+	
 	#TODO do something with the message
 	#if cmd, call to execute cmd
 	#if sensor, update state vars for device
@@ -105,3 +108,12 @@ def getroute(path):
 #
 #
 
+#Test
+print("Starting Test")
+initializemqtt(theRover)
+i = 0
+while i < 60:
+	time.sleep(30)
+	i += 1
+
+closemqtt()
