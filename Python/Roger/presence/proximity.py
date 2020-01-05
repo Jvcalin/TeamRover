@@ -1,4 +1,4 @@
-import common.mycollections as coll
+from Roger.common import mycollections as coll
 
 nodesize = 100
 

@@ -110,10 +110,11 @@ def getroute(path):
 
 #Test
 print("Starting Test")
+
 initializemqtt(theRover)
 i = 0
 while i < 60:
-	time.sleep(30)
-	i += 1
+    time.sleep(30)
+    i += 1
 
 closemqtt()
