@@ -1,9 +1,8 @@
 
-
 class EventNotifier:
 
 	def __init__(self):
-		self.event = [];
+		self.event = []
 
 	def subscribe(self, f):
 		self.event.append(f)
@@ -16,76 +15,76 @@ class EventNotifier:
 			f(value)
 
 
-#eventually, we would like the executive
-#to be able to create events and link a reaction to them
+# eventually, we would like the executive
+# to be able to create events and link a reaction to them
 
-#Context is a set of events that can be loaded or unloaded
+# Context is a set of events that can be loaded or unloaded
 #  
 
 
-#what to do when an event occurs
+# what to do when an event occurs
 class Sense:
-	def Forward():
+	def forward(self):
 		pass
 
-	def Backward():
+	def backward(self):
 		pass
 
-	def SpinLeft():
+	def spinleft(self):
 		pass
 
-	def SpinRight():
+	def spinright(self):
 		pass
 
-	def TipForward():
+	def tipforward(self):
 		pass
 
-	def TipBackward():
+	def tipbackward(self):
 		pass
 
-	def TipLeft():
+	def tipleft(self):
 		pass
 
-	def TipRight():
+	def tipright(self):
 		pass
 
-	def Brake():
+	def brake(self):
 		pass
 
-	def Bump():
+	def bump(self):
 		pass
 
 
-#check if an event occurred
+# check if an event occurred
 class Did:
-	def GoForward():
+	def goforward(self):
 		pass
 
-	def GoBackward():
+	def gobackward(self):
 		pass
 
-	def SpinLeft():
+	def spinleft(self):
 		pass
 
-	def SpinRight():
+	def spinright(self):
 		pass
 
-	def TipForward():
+	def tipforward(self):
 		pass
 
-	def TipBackward():
+	def tipbackward(self):
 		pass
 
-	def TipLeft():
+	def tipleft(self):
 		pass
 
-	def TipRight():
+	def tipright(self):
 		pass
 
-	def Brake():
+	def brake(self):
 		pass
 
-	def Bump():
+	def bump(self):
 		pass
 
 
@@ -102,4 +101,3 @@ def watch(value):
 e = EventNotifier()
 e.subscribe(watch)
 e.notify("aaa")
-

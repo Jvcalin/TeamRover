@@ -19,16 +19,16 @@ class Rover:
         self.did = Events.Did()
         self.sense = Events.Sense()
         self.events = {
-            "forward": RogerEvent(self.did.GoForward, self.sense.Forward),
-            "spinleft": RogerEvent(self.did.SpinLeft, self.sense.SpinLeft),
-            "spinright": RogerEvent(self.did.SpinRight, self.sense.SpinLeft),
-            "backward": RogerEvent(self.did.GoBackward, self.sense.Backward),
-            "tipforward": RogerEvent(self.did.TipForward, self.sense.TipForward),
+            "forward": RogerEvent(self.did.goforward, self.sense.Forward),
+            "spinleft": RogerEvent(self.did.spinleft, self.sense.spinleft),
+            "spinright": RogerEvent(self.did.spinright, self.sense.spinleft),
+            "backward": RogerEvent(self.did.gobackward, self.sense.Backward),
+            "tipforward": RogerEvent(self.did.tipforward, self.sense.tipforward),
             "tipback": RogerEvent(self.did.TipBack, self.sense.TipBack),
-            "tipleft": RogerEvent(self.did.TipLeft, self.sense.TipLeft),
-            "tipright": RogerEvent(self.did.TipRight, self.sense.Right),
-            "brake": RogerEvent(self.did.Brake, self.sense.Brake),
-            "bump": RogerEvent(self.did.Bump, self.sense.Bump)
+            "tipleft": RogerEvent(self.did.tipleft, self.sense.tipleft),
+            "tipright": RogerEvent(self.did.tipright, self.sense.Right),
+            "brake": RogerEvent(self.did.brake, self.sense.brake),
+            "bump": RogerEvent(self.did.bump, self.sense.bump)
             }
 
     def readSensors(self):

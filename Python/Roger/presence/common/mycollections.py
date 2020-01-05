@@ -1,6 +1,7 @@
 import statistics as stat
 import collections 
 
+
 class CircularArray:
 
     def __init__(self, size, factory):
