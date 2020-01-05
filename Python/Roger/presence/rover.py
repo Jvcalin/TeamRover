@@ -1,11 +1,9 @@
 import proximity as Prox
 import grid as Grid
-#import common.mycollections as Coll
 import matrixcreator as Matrix
 import featherhuzzah as Feather
-#import common.events as Events
-from Roger.common import events as Events
-from Roger.common import mycollections as Coll
+from common import events as Events
+from common import mycollections as Coll
 
 class Rover:
     
