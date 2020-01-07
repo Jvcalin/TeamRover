@@ -6,36 +6,41 @@
 
 
 //Topics
+
+//PUBLISH
 //roger/status
 //roger/status/feather
 //roger/status/matrix
-
-//roger/cmd/feather/beep => "swoopup"
-//roger/cmd/feather/motor => "forward"
-//roger/cmd/feather/servo => "h,v"
 //roger/sensors/feather/proxf
 //roger/sensors/feather/proxb
 //roger/sensors/feather/proxl
 //roger/sensors/feather/proxr
-//roger/sensors/feather/motor/speed
-//roger/sensors/feather/motor/action
-//roger/sensors/feather/servo/h
-//roger/sensors/feather/servo/v
+//roger/sensors/feather/motorspeed
+//roger/sensors/feather/motoraction
+//roger/sensors/feather/servohpos
+//roger/sensors/feather/servovpos
 //roger/sensors/feather/bump
 //roger/sensors/feather/vib
 //roger/sensors/feather/charging
 //roger/sensors/feather/batt
 //roger/sensors/feather/power
 
+//SUBSCRIBE
+//roger/cmd/feather/beep => "swoopup"
+//roger/cmd/feather/motor => "forward"
+//roger/cmd/feather/servo => "h,v"
+
 #define MQTT_SERVER      "192.168.1.25"
 #define MQTT_SERVERPORT  1883
 #define AIO_USERNAME    "jvcalin"
 #define AIO_KEY         "xxxxxxxxxx"
+#define BASE_TOPIC_PATH "roger/sensors/feather/"
 
 // Store the MQTT server, username, and password in flash memory.
 // This is required for using the Adafruit MQTT library.
 //const char MQTT_SERVER[] PROGMEM    = MQTT_SERVER;
 //const char MQTT_USERNAME[] PROGMEM  = AIO_USERNAME;
+//const char PHOTOCELL_FEED[] = AIO_USERNAME "/feeds/photocell";
 //const char MQTT_PASSWORD[] PROGMEM  = AIO_KEY;
 
 // Setup the MQTT client class by passing in the WiFi client and MQTT server and login details.
@@ -43,8 +48,8 @@ WiFiClient client;
 Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, MQTT_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
 const char BEEP_FEED[] PROGMEM = "roger/cmd/feather/beep";
-const char MOTOR_FEED[] PROGMEM = "roger/cmd/feather/beep";
-const char SERVO_FEED[] PROGMEM = "roger/cmd/feather/beep";
+const char MOTOR_FEED[] PROGMEM = "roger/cmd/feather/motor";
+const char SERVO_FEED[] PROGMEM = "roger/cmd/feather/servo";
 
 Adafruit_MQTT_Subscribe beepCmd = Adafruit_MQTT_Subscribe(&mqtt, BEEP_FEED);
 Adafruit_MQTT_Subscribe motorCmd = Adafruit_MQTT_Subscribe(&mqtt, MOTOR_FEED);
@@ -118,12 +123,14 @@ void WiFiTick() {
   Adafruit_MQTT_Subscribe *subscription;
   while ((subscription = mqtt.readSubscription(100))) {
     if (subscription == &beepCmd) {
-      Serial.print(F("Got: "));
-      Serial.println((char *)beepCmd.lastread);
+      Play((char *)beepCmd.lastread);
+      //Serial.print(F("Got: "));
+      //Serial.println((char *)beepCmd.lastread);
     }
     if (subscription == &motorCmd) {
-      Serial.print(F("Got: "));
-      Serial.println((char *)motorCmd.lastread);
+      SetCurrentAction((char *)motorCmd.lastread);
+      //Serial.print(F("Got: "));
+      //Serial.println((char *)motorCmd.lastread);
     }
     if (subscription == &servoCmd) {
       Serial.print(F("Got: "));
@@ -151,5 +158,40 @@ void MQTT_connect() {
     mqtt.disconnect();
   }
   else
-    Serial.println("MQTT Connected!");
+    SPrintln("MQTT Connected!");
+}
+
+void MQTTPublishStatus(String statusmsg) {
+  MQTT_connect();
+
+  if (mqtt.connected()) {
+    MQTTPublish("roger/status/feather",StringToCharArray(statusmsg));
+  }
+}
+
+void MQTTPublish(const char* topic, char* message) {
+  String fulltopic = String(BASE_TOPIC_PATH);
+  fulltopic = fulltopic.concat(String(topic));
+
+  Adafruit_MQTT_Publish pub = Adafruit_MQTT_Publish(&mqtt, StringToCharArray(fulltopic));
+  pub.publish(message);
+  delete &pub;
+}
+
+void MQTTPublishSensors() {
+  MQTTPublish("proxf", StringToCharArray(String(getFrontDistance())));
+  MQTTPublish("proxb", StringToCharArray(String(getBackDistance())));
+  MQTTPublish("proxl", StringToCharArray(String(getLeftDistance())));
+  MQTTPublish("proxr", StringToCharArray(String(getRightDistance())));
+  MQTTPublish("motorspeed", StringToCharArray(String(getCurrSpeed())));
+  MQTTPublish("motoraction", StringToCharArray(String(getCurrentAction())));
+  MQTTPublish("servohpos", StringToCharArray(String(getServoHPos())));
+  MQTTPublish("servovpos", StringToCharArray(String(getServoVPos())));
+}
+
+char* StringToCharArray(String str) {
+  int bufsize = str.length();
+  char buf[bufsize];
+  str.toCharArray(buf, bufsize);
+  return buf; 
 }

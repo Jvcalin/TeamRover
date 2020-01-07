@@ -96,6 +96,14 @@ void ServoTick() {
     }
 }
 
+int getServoHPos() {
+  return hpos;
+}
+
+int getServoVPos() {
+  return vpos;
+}
+
 void ServoMoveLeft(int xPercent) {
   if (xPercent != 0) {
    double x = (H_MAX - H_MIN) * xPercent / 100; //map(xPercent,0,99,H_MIN,H_MAX);

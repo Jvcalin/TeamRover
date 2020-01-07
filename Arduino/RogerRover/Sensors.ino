@@ -114,6 +114,19 @@ void printUltrasonicSensorReadings() {
 
 }
 
+int getFrontDistance() {
+  return fDistance;
+}
+int getBackDistance() {
+  return bDistance;
+}
+int getLeftDistance() {
+  return lDistance;
+}
+int getRightDistance() {
+  return rDistance;
+}
+
 void ultrasonicSensorDetectAll() {
   ultrasonicSensorDetectLeft();
   ultrasonicSensorDetectFront();

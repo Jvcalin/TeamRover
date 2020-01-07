@@ -50,6 +50,19 @@ void PlayTone() {
   noTone(speakerPin);
 }
 
+void Play(const char* cmd) {
+  if (strcmp(cmd,"SwoopUp") == 0)
+    PlaySwoopUp();
+  else if (strcmp(cmd,"SwoopDown") == 0)
+    PlaySwoopDown();
+  else if (strcmp(cmd,"Beep") == 0)
+    PlayBeep();
+  else if (strcmp(cmd,"DeepBeep") == 0)
+    PlayDeepBeep();
+  else if (strcmp(cmd,"DuntDuntDunt") == 0)
+    PlayDuntDuntDunt();
+}
+
 void PlaySwoopUp() {
   //261 - 440
 

@@ -112,6 +112,41 @@ SPrintln("Starting Program");
 }
 
 void loop() {
+  long startLoop = millis();
+
+  if (timer1 > 50 && true && !IsOff()) {
+    timer1 = 0;
+  
+    printUltrasonicSensorReadings();
+    //readBatterySensor();
+  
+    redLedState = FlipValue(redLedState);
+    pinMode(redLed, OUTPUT);
+    digitalWrite(redLed, redLedState);
+
+    WiFiTick();  
+  }
+
+  SensorsTick();
+ 
+  MotorsTick();
+  //SenseVibration();
+  //ServoTick();
+  delay(10);
+   
+  long timeElapsed = millis() - startLoop;
+  //SPrint("Loop:");
+  //SPrint(timeElapsed);
+  //SPrint("ms ");
+  //SPrintln(timer); 
+
+  timer++;
+  timer1++;  
+}
+
+
+
+void testloop() {
   // put your main code here, to run repeatedly:
   //SPrintln("Starting the loop");
   long startLoop = millis();

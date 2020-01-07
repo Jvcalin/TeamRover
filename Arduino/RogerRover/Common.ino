@@ -2,6 +2,7 @@
 
 #define DEBUG true
 #define OLED true
+#define MQTT true
 
 void SetupSerial(){
    Serial.begin(115200);
@@ -11,7 +12,10 @@ void SetupSerial(){
    SPrintln("");
 }
 
-
+String currentmessage;
+void AddToCurrentMessage(String str) {
+  currentmessage.concat(str);
+}
 
 void SPrint(const char* str) {
   if (DEBUG) {
@@ -19,6 +23,9 @@ void SPrint(const char* str) {
   }
   if (OLED) {
       OLEDPrint(str);
+  }
+  if (MQTT) {
+    AddToCurrentMessage(String(str));
   }
 }
 
@@ -28,6 +35,9 @@ void SPrint(int value) {
   }
   if (OLED) {
     OLEDPrint(value);
+  }
+  if (MQTT) {
+    AddToCurrentMessage(String(value));
   }  
 }
 
@@ -38,6 +48,9 @@ void SPrint(String value) {
   if (OLED) {
     OLEDPrint(value);
   }  
+   if (MQTT) {
+    AddToCurrentMessage(value);
+  }
 }
 void SPrintln(const char* str) {
   if (DEBUG) {
@@ -45,6 +58,10 @@ void SPrintln(const char* str) {
   }
   if (OLED) {
     OLEDPrintln(str);
+  }
+  if (MQTT) {
+    AddToCurrentMessage(String(str));
+    MQTTPublishStatus(currentmessage);
   }
 }
 
@@ -54,6 +71,10 @@ void SPrintln(int value) {
   }
   if (OLED) {
     OLEDPrintln(value);
+  }
+  if (MQTT) {
+    AddToCurrentMessage(String(value));
+    MQTTPublishStatus(currentmessage);
   }
 }
 
