@@ -1,7 +1,7 @@
 #include "ESP8266WiFi.h"
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
-#include <aREST.h>
+//#include <aREST.h>
 
 
 
@@ -47,20 +47,22 @@
 WiFiClient client;
 Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, MQTT_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
-const char BEEP_FEED[] PROGMEM = "roger/cmd/feather/beep";
-const char MOTOR_FEED[] PROGMEM = "roger/cmd/feather/motor";
-const char SERVO_FEED[] PROGMEM = "roger/cmd/feather/servo";
+#define BEEP_FEED "roger/cmd/feather/beep"
+#define MOTOR_FEED "roger/cmd/feather/motor"
+#define SERVO_FEED "roger/cmd/feather/servo"
 
 Adafruit_MQTT_Subscribe beepCmd = Adafruit_MQTT_Subscribe(&mqtt, BEEP_FEED);
-Adafruit_MQTT_Subscribe motorCmd = Adafruit_MQTT_Subscribe(&mqtt, MOTOR_FEED);
-Adafruit_MQTT_Subscribe servoCmd = Adafruit_MQTT_Subscribe(&mqtt, SERVO_FEED);
+//Adafruit_MQTT_Subscribe motorCmd; //= Adafruit_MQTT_Subscribe(&mqtt, MOTOR_FEED);
+//Adafruit_MQTT_Subscribe servoCmd; //= Adafruit_MQTT_Subscribe(&mqtt, SERVO_FEED);
 
-aREST rest = aREST();
+//aREST rest = aREST();
 
 const char* ssid = "Daenerys";
 const char* password = "jonandpaul";
 
-
+// Bug workaround for Arduino 1.6.6, it seems to need a function declaration
+// for some reason (only affects ESP8266, likely an arduino-builder bug).
+void MQTT_connect();
 
 // The port to listen for incoming TCP connections 
 #define LISTEN_PORT           80
@@ -70,6 +72,9 @@ const char* password = "jonandpaul";
 
 //Public Functions
 void SetupWiFi() {
+
+  //SPrintln(F("Adafruit MQTT demo"));
+  
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -83,11 +88,11 @@ void SetupWiFi() {
   //SPrintln("Server started");
   
   // Print the IP address
-  //SPrintln(WiFi.localIP());
-
+  SPrintln(WiFi.localIP());
+  //MQTTPublishStatus("Feather powering up");
   mqtt.subscribe(&beepCmd);
-  mqtt.subscribe(&motorCmd);
-  mqtt.subscribe(&servoCmd);
+  //mqtt.subscribe(&motorCmd);
+  //mqtt.subscribe(&servoCmd);
 
 }
 
@@ -103,6 +108,7 @@ void AddWiFiFunctions() {
 }
 
 void WiFiTick() {
+  SPrint(".");
   // Handle REST calls
   //WiFiClient client = server.available();
   //if (!client) {
@@ -118,24 +124,24 @@ void WiFiTick() {
   // function definition further below.
   MQTT_connect();
 
-
   //Read Subscriptions
   Adafruit_MQTT_Subscribe *subscription;
-  while ((subscription = mqtt.readSubscription(100))) {
+  while ((subscription = mqtt.readSubscription(5000))) {
+    //SPrintln(subscription);
     if (subscription == &beepCmd) {
       Play((char *)beepCmd.lastread);
+      SPrint("Got: ");
+      SPrintln((char *)beepCmd.lastread);
+    }
+    //if (subscription == &motorCmd) {
+    //  SetCurrentAction((char *)motorCmd.lastread);
+    //  Serial.print(F("Got: "));
+    //  Serial.println((char *)motorCmd.lastread);
+    //}
+    //if (subscription == &servoCmd) {
       //Serial.print(F("Got: "));
-      //Serial.println((char *)beepCmd.lastread);
-    }
-    if (subscription == &motorCmd) {
-      SetCurrentAction((char *)motorCmd.lastread);
-      //Serial.print(F("Got: "));
-      //Serial.println((char *)motorCmd.lastread);
-    }
-    if (subscription == &servoCmd) {
-      Serial.print(F("Got: "));
-      Serial.println((char *)servoCmd.lastread);
-    }
+      //Serial.println((char *)servoCmd.lastread);
+    //}
   }
 }
 
@@ -152,13 +158,22 @@ void MQTT_connect() {
 
   //Attempt to connect and abandon on fail
   SPrintln("Connecting to MQTT... ");
-  if ((ret = mqtt.connect()) != 0) {  // connect will return 0 for connected
-    SPrintln("Could not connect to MQTT.");
-    SPrintln((int)mqtt.connectErrorString(ret));
-    mqtt.disconnect();
+  
+  uint8_t retries = 3;
+  while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
+       SPrintln((int)(mqtt.connectErrorString(ret)));
+       SPrintln("Retrying MQTT connection in 5 seconds...");
+       mqtt.disconnect();
+       delay(5000);  // wait 5 seconds
+       retries--;
+       if (retries == 0) {
+         // basically die and wait for WDT to reset me
+         SPrintln("Can't connect... reset me");
+         while (1);
+       }
   }
-  else
-    SPrintln("MQTT Connected!");
+  SPrintln("MQTT Connected!");
+
 }
 
 void MQTTPublishStatus(String statusmsg) {

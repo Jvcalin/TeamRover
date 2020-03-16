@@ -86,11 +86,11 @@ Serial.begin(115200);
 //FALLING for when the pin goes from high to low.
   SetupSerial();
   delay(1000);
-  SetupSensors();
+  //SetupSensors();
   delay(1000);
-  SetupMotors();
+  //SetupMotors();
   delay(1000);
-  SetupSounds();
+  //SetupSounds();
   delay(1000);
   //SetupServos();
   delay(1000);
@@ -117,7 +117,7 @@ void loop() {
   if (timer1 > 50 && true && !IsOff()) {
     timer1 = 0;
   
-    printUltrasonicSensorReadings();
+    //printUltrasonicSensorReadings();
     //readBatterySensor();
   
     redLedState = FlipValue(redLedState);
@@ -127,9 +127,9 @@ void loop() {
     WiFiTick();  
   }
 
-  SensorsTick();
+  //SensorsTick();
  
-  MotorsTick();
+  //MotorsTick();
   //SenseVibration();
   //ServoTick();
   delay(10);

@@ -25,6 +25,7 @@ import time
 
 #roger/cmd/matrix/led/roundinacircle = 3 (times)
 #roger/cmd/matrix/led/rainbow => 3 (times)
+#roger/cmd/matrix/
 #roger/sensors/matrix/imu/accel
 #roger/sensors/matrix/imu/gyro
 #roger/sensors/matrix/imu/orientation
@@ -40,13 +41,11 @@ import time
 #roger/event/me/brake
 #roger/event/me/bump
 
-
-
+rogerMqtt = mqtt.Client("RogerMQTT_Pi",False) #clean sessions =false so subsriptions are maintained and messages are saved if disconnected
 theRover = None
 
 def initializemqtt(rover):
 	theRover = rover
-	rogerMqtt = mqtt.Client("RogerMQTT_Pi",False) #clean sessions =false so subsriptions are maintained and messages are saved if disconnected
 	rogerMqtt.on_message = on_message
 	rogerMqtt.on_connect = on_connect
 	rogerMqtt.connect("192.168.1.25", 1883)
