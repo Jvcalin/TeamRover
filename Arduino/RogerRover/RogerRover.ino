@@ -9,7 +9,7 @@
 //Seesaw 0x49
 //Seesaw 0x4A
 
-//Pin Assignments
+//Pin Assignments ESP8266
 //A0 - piezo buzzer
 //14
 //12 - white  ultrasonic front echo
@@ -19,9 +19,33 @@
 //16 - black  ultrasonic left echo
 //2 - OLED Button C - seesaw interrupt
 
+//Pin Assignments ESP32
+//13/A12 - Red LED
+//12/A11
+//27/A10
+//33/A9
+//15/A8 - OLED Button A
+//32/A7 - OLED Button B
+//14/A6 - OLED Button C
+
+//A0/DAC2 - piezo buzzer
+//A1/DAC1
+//A2/34
+//A3/39
+//A4/36
+//A5/4
+//SCK/5
+//MOSI/18
+//MISO/19
+//RX/16
+//TX/17
+//21
+
+//A13 - Voltage level
+
 //Seesaw Pin Assignments
 //GPIO/Neopixel
-//9  piezo buzzer
+//9  piezo vib sensor
 //10 - yellow  ultrasonic left trig
 //11 - orange  ultrasonic front trig
 //14 - red  ultrasonic right trig
@@ -53,7 +77,7 @@
 //5
 //6
 //7
-#define redLed 0
+#define redLed 13 //0
 
 long timer = 0;
 long timer1 = 50;
@@ -90,11 +114,11 @@ Serial.begin(115200);
   delay(1000);
   //SetupMotors();
   delay(1000);
-  //SetupSounds();
+  SetupSounds();
   delay(1000);
   //SetupServos();
   delay(1000);
-  SetupWiFi();
+  //SetupWiFi();
   delay(1000);
   
 //Serial.println("Start Program");  
@@ -194,6 +218,7 @@ if (timer1 > 50 && true && !IsOff()) {
   //SenseVibration();
 
   WiFiTick();
+
 
   long timeElapsed = millis() - startLoop;
   //SPrint("Loop:");

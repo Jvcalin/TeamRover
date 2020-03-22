@@ -259,7 +259,7 @@ void MotorsTick() {
   
 }
 
-String getCurrentAction() {
+char* getCurrentAction() {
   switch (currentAction) {
     case mOFF:
       return "Off";
@@ -298,30 +298,47 @@ void SetCurrentAction(const char* command) {
       GoStop();
   else
       GoStop();
+}
 
+void SetCurrentAction(String command) {
+  
+  if (command.equals("Off")) 
+      GoOff();
+  else if (command.equals("Forward"))
+      GoForward();
+  else if (command.equals("SpinLeft"))
+      GoSpinLeft();
+  else if (command.equals("SpinRight")) 
+      GoSpinRight();
+  else if (command.equals("Reverse")) 
+      GoReverse();
+  else if (command.equals("Stop"))
+      GoStop();
+  else
+      GoStop();
 }
 
 void GoOff() {
-  //SPrintln("ActionOff");
+  SPrintln("ActionOff");
   currentAction = mOFF;
 }
 
 void GoForward() {
-  //SPrintln("ActionForward");
+  SPrintln("ActionForward");
   currentAction = mFORWARD;
 }
 
 void GoSpinLeft() {
-  //SPrintln("ActionSpinLeft");
+  SPrintln("ActionSpinLeft");
   currentAction = mSPINLEFT;
 }
 
 void GoSpinRight() {
-  //SPrintln("ActionSpinRight");
+  SPrintln("ActionSpinRight");
   currentAction = mSPINRIGHT;
 }
 
 void GoReverse() {
-  //SPrintln("ActionReverse");
+  SPrintln("ActionReverse");
   currentAction = mREVERSING;
 }

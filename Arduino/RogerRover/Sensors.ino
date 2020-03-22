@@ -16,9 +16,9 @@
 #define lTrigPin 10  
 #define bTrigPin 15 
 
-#define vibrationPin A0
-#define ledPin 9
-#define opSensorPin A0 //Optical Sensor
+#define vibrationPin 0
+//#define ledPin 9
+//#define opSensorPin A0 //Optical Sensor
 #define SEESAW_ADDRESS2 (0x4A)
 
 #define FRONT 1001;
@@ -82,20 +82,20 @@ void SensorsTick() {
   ultrasonicSensorDetectAll();
 }
 
-bool OpSensorDetect() {
-  int reading = analogRead(opSensorPin);
-  float proximityV = (float)reading * 5.0 / 1023.0;
-  //if (digitalRead(echoPin) == HIGH) {
-  if (reading > 60) {
-    SPrintln(reading);
-    //SPrintln("op!");
-    return true;
-  }
-  else {
-    SPrintln(reading);
-    return false;
-  }
-}
+//bool OpSensorDetect() {
+//  int reading = analogRead(opSensorPin);
+//  float proximityV = (float)reading * 5.0 / 1023.0;
+//  //if (digitalRead(echoPin) == HIGH) {
+//  if (reading > 60) {
+//    SPrintln(reading);
+//    //SPrintln("op!");
+//    return true;
+//  }
+//  else {
+//    SPrintln(reading);
+//    return false;
+//  }
+//}
 
 void printUltrasonicSensorReadings() {
       

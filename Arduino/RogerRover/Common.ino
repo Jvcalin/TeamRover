@@ -2,10 +2,10 @@
 
 #define DEBUG true
 #define OLED true
-#define MQTT true
+#define MQTT false
 
 void SetupSerial(){
-   Serial.begin(115200);
+   Serial.begin(115200);//(921600);
    Serial.println();
    Serial.println();
    SetupOLED();
@@ -52,6 +52,30 @@ void SPrint(String value) {
     AddToCurrentMessage(value);
   }
 }
+void SPrint(const String& value) {
+  if (DEBUG) {
+    Serial.print(value);
+  }
+  if (OLED) {
+    OLEDPrint(value);
+  }  
+   if (MQTT) {
+    AddToCurrentMessage(value);
+  }
+}
+void SPrintln(const String& value) {
+  if (DEBUG) {
+    Serial.println(value);
+  }
+  if (OLED) {
+    OLEDPrintln(value);
+  }
+  //if (MQTT) {
+  //  AddToCurrentMessage(String(value));
+  //  MQTTPublishStatus(currentmessage);
+  //}
+}
+
 void SPrintln(const char* str) {
   if (DEBUG) {
     Serial.println(str);

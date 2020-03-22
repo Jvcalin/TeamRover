@@ -1,9 +1,12 @@
-#include "ESP8266WiFi.h"
+/*
+
+//#include "ESP8266WiFi.h"
+#include "WiFi.h"
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 //#include <aREST.h>
 
-
+//https://github.com/plapointe6/EspMQTTClient
 
 //Topics
 
@@ -52,8 +55,9 @@ Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, MQTT_SERVERPORT, AIO_USERNAME, A
 #define SERVO_FEED "roger/cmd/feather/servo"
 
 Adafruit_MQTT_Subscribe beepCmd = Adafruit_MQTT_Subscribe(&mqtt, BEEP_FEED);
-//Adafruit_MQTT_Subscribe motorCmd; //= Adafruit_MQTT_Subscribe(&mqtt, MOTOR_FEED);
+Adafruit_MQTT_Subscribe motorCmd = Adafruit_MQTT_Subscribe(&mqtt, MOTOR_FEED);
 //Adafruit_MQTT_Subscribe servoCmd; //= Adafruit_MQTT_Subscribe(&mqtt, SERVO_FEED);
+
 
 //aREST rest = aREST();
 
@@ -89,10 +93,12 @@ void SetupWiFi() {
   
   // Print the IP address
   SPrintln(WiFi.localIP());
-  //MQTTPublishStatus("Feather powering up");
   mqtt.subscribe(&beepCmd);
-  //mqtt.subscribe(&motorCmd);
+  mqtt.subscribe(&motorCmd);
   //mqtt.subscribe(&servoCmd);
+
+  MQTTPublishStatus("Feather powering up");
+
 
 }
 
@@ -133,11 +139,11 @@ void WiFiTick() {
       SPrint("Got: ");
       SPrintln((char *)beepCmd.lastread);
     }
-    //if (subscription == &motorCmd) {
-    //  SetCurrentAction((char *)motorCmd.lastread);
-    //  Serial.print(F("Got: "));
-    //  Serial.println((char *)motorCmd.lastread);
-    //}
+    if (subscription == &motorCmd) {
+      SetCurrentAction((char *)motorCmd.lastread);
+      SPrint(F("Got: "));
+      SPrintln((char *)motorCmd.lastread);
+    }
     //if (subscription == &servoCmd) {
       //Serial.print(F("Got: "));
       //Serial.println((char *)servoCmd.lastread);
@@ -178,19 +184,21 @@ void MQTT_connect() {
 
 void MQTTPublishStatus(String statusmsg) {
   MQTT_connect();
+  
+  SPrintln("About to publish");
+  MQTTPublish("roger/status/feather",StringToCharArray(statusmsg));
 
-  if (mqtt.connected()) {
-    MQTTPublish("roger/status/feather",StringToCharArray(statusmsg));
-  }
+
 }
 
 void MQTTPublish(const char* topic, char* message) {
   String fulltopic = String(BASE_TOPIC_PATH);
   fulltopic = fulltopic.concat(String(topic));
 
-  Adafruit_MQTT_Publish pub = Adafruit_MQTT_Publish(&mqtt, StringToCharArray(fulltopic));
-  pub.publish(message);
-  delete &pub;
+  SPrintln("Publishing!");
+  //Adafruit_MQTT_Publish pub = Adafruit_MQTT_Publish(&mqtt, "roger/status/feather");
+  //pub.publish(message);
+  //delete &pub;
 }
 
 void MQTTPublishSensors() {
@@ -210,3 +218,5 @@ char* StringToCharArray(String str) {
   str.toCharArray(buf, bufsize);
   return buf; 
 }
+
+*/

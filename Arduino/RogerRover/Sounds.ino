@@ -1,9 +1,9 @@
 
 
-#define speakerPin 0
+#define speakerPin A0 //0
  
-int numTones = 10;
-int tones[] = {261, 277, 294, 311, 330, 349, 370, 392, 415, 440};
+//int numTones = 10;
+//int tones[] = {261, 277, 294, 311, 330, 349, 370, 392, 415, 440};
 //            mid C  C#   D    D#   E    F    F#   G    G#   A
 
 #define  Ct  261
@@ -21,34 +21,38 @@ int tones[] = {261, 277, 294, 311, 330, 349, 370, 392, 415, 440};
 #define QUARTER  2
 #define HALF  4
 #define WHOLE  8
+#define OCTAVE 2
 
 int tempo = 250;
+//https://techtutorialsx.com/2017/07/01/esp32-arduino-controlling-a-buzzer-with-pwm/
 
 void SetupSounds() {
   SPrintln("Sound Setup");
-  pinMode(speakerPin, OUTPUT);
+  //pinMode(speakerPin, OUTPUT);
+  ledcSetup(0,1E5,12);
+  ledcAttachPin(speakerPin,0);
   //PlayTone();
   PlayBeep();
 }
 
-void SwitchToSound() {
-  SPrintln("Switch to Sound");
-  pinMode(speakerPin, OUTPUT);
-}
+//void SwitchToSound() {
+//  SPrintln("Switch to Sound");
+//  pinMode(speakerPin, OUTPUT);
+//}
 
-void SwitchToInterrupt() {
-  SPrintln("Switch to Interrupt");
-  pinMode(speakerPin, INPUT);
-}
+//void SwitchToInterrupt() {
+//  SPrintln("Switch to Interrupt");
+//  pinMode(speakerPin, INPUT);
+//}
 
-void PlayTone() {
-  for (int i = 0; i < numTones; i++)
-  {
-    tone(speakerPin, tones[i]);
-    delay(500);
-  }
-  noTone(speakerPin);
-}
+//void PlayTone() {
+//  for (int i = 0; i < numTones; i++)
+//  {
+//    tone(speakerPin, tones[i]);
+//    delay(500);
+//  }
+//  noTone(speakerPin);
+//}
 
 void Play(const char* cmd) {
   if (strcmp(cmd,"SwoopUp") == 0)
@@ -61,6 +65,23 @@ void Play(const char* cmd) {
     PlayDeepBeep();
   else if (strcmp(cmd,"DuntDuntDunt") == 0)
     PlayDuntDuntDunt();
+  else
+    SPrint("unknown beep cmd"); 
+}
+
+void Play(String cmd) {
+  if (cmd.equals("SwoopUp"))
+    PlaySwoopUp();
+  else if (cmd.equals("SwoopDown"))
+    PlaySwoopDown();
+  else if (cmd.equals("Beep"))
+    PlayBeep();
+  else if (cmd.equals("DeepBeep"))
+    PlayDeepBeep();
+  else if (cmd.equals("DuntDuntDunt"))
+    PlayDuntDuntDunt();
+  else
+    SPrintln("unknown beep cmd"); 
 }
 
 void PlaySwoopUp() {
@@ -69,11 +90,13 @@ void PlaySwoopUp() {
   float t=0;
   for (int i = 0; t < 440; i++){
     t = (i*i * 0.75) + 261 ;
-    tone(speakerPin, round(t));
+    //tone(speakerPin, round(t));
+    ledcWriteTone(0, round(t));
     //SPrintln(t);
     delay(50);
   }
-  noTone(speakerPin);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
 }
 
 void PlayBeep() {
@@ -91,11 +114,13 @@ void PlaySwoopDown() {
   float t=440;
   for (int i = 0; t > 261; i++){
     t = 440 - (i*i * 0.75);
-    tone(speakerPin, round(t));
+    //tone(speakerPin, round(t));
+    ledcWriteTone(0, round(t));
     //SPrintln(t);
     delay(50);
   }
-  noTone(speakerPin);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
 }
 
 void PlayDuntDuntDunt() {
@@ -111,65 +136,102 @@ void PlayDuntDuntDunt() {
 }
 
 void PlayRest(int tlength) {
+  ledcWriteTone(0,0);
   delay(tlength * tempo);
 }
 
 void PlayC(int tlength) {
-  tone(speakerPin, Ct);
+  ledcWriteNote(0,NOTE_C,OCTAVE);
+  //tone(speakerPin, Ct);
   delay(tlength * tempo);
-  noTone(speakerPin);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
 }
 
 void PlayCs(int tlength) {
-  tone(speakerPin, Cst);
+  ledcWriteNote(0,NOTE_Cs,OCTAVE);
+  //tone(speakerPin, Cst);
   delay(tlength * tempo);
-  noTone(speakerPin);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
 }
 
 void PlayD(int tlength) {
-  tone(speakerPin, Dt);
+  ledcWriteNote(0,NOTE_D,OCTAVE);
+  //tone(speakerPin, Dt);
   delay(tlength * tempo);
-  noTone(speakerPin);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
 }
 
-void PlayDs(int tlength) {
-  tone(speakerPin, Dst);
+void PlayEb(int tlength) {
+  ledcWriteNote(0,NOTE_Eb,OCTAVE);
+  //tone(speakerPin, Dst);
   delay(tlength * tempo);
-  noTone(speakerPin);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
 }
 
 void PlayE(int tlength) {
-  tone(speakerPin, Et);
+  ledcWriteNote(0,NOTE_E,OCTAVE);
+  //tone(speakerPin, Et);
   delay(tlength * tempo);
-  noTone(speakerPin);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
 }
 
 void PlayF(int tlength) {
-  tone(speakerPin, Ft);
+  ledcWriteNote(0,NOTE_F,OCTAVE);
+  //tone(speakerPin, Ft);
   delay(tlength * tempo);
-  noTone(speakerPin);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
 }
 
 void PlayFs(int tlength) {
-  tone(speakerPin, Fst);
+  ledcWriteNote(0,NOTE_Fs,OCTAVE);
+  //tone(speakerPin, Fst);
   delay(tlength * tempo);
-  noTone(speakerPin);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
 }
 
 void PlayG(int tlength) {
-  tone(speakerPin, Gt);
+  ledcWriteNote(0,NOTE_G,OCTAVE);
+  //tone(speakerPin, Gt);
   delay(tlength * tempo);
-  noTone(speakerPin);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
 }
 
 void PlayGs(int tlength) {
-  tone(speakerPin, Gst);
+  ledcWriteNote(0,NOTE_Gs,OCTAVE);
+  //tone(speakerPin, Gst);
   delay(tlength * tempo);
-  noTone(speakerPin);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
 }
 
 void PlayA(int tlength) {
-  tone(speakerPin, At);
+  ledcWriteNote(0,NOTE_A,OCTAVE);
+  //tone(speakerPin, At);
   delay(tlength * tempo);
-  noTone(speakerPin);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
+}
+
+void PlayBb(int tlength) {
+  ledcWriteNote(0,NOTE_Bb,OCTAVE);
+  //tone(speakerPin, At);
+  delay(tlength * tempo);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
+}
+
+void PlayB(int tlength) {
+  ledcWriteNote(0,NOTE_B,OCTAVE);
+  //tone(speakerPin, At);
+  delay(tlength * tempo);
+  //noTone(speakerPin);
+  ledcWriteTone(0,0);
 }

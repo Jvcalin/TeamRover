@@ -41,7 +41,7 @@ void SetupOLED() {
    display.setCursor(0,0);
   
    pinMode(BUTTON_A, INPUT_PULLUP);
-   //pinMode(BUTTON_B, INPUT_PULLUP);
+   pinMode(BUTTON_B, INPUT_PULLUP);
    pinMode(BUTTON_C, INPUT_PULLUP);
    
    SPrintln("Starting OLED");
@@ -84,6 +84,11 @@ void OLEDPrintln(const char* str) {
 void OLEDPrintln(int value) {
    String str = String(value);
    currentLine = currentLine + str;
+   PushDisplay(currentLine);
+}
+
+void OLEDPrintln(String value) {
+   currentLine = currentLine + value;
    PushDisplay(currentLine);
 }
 
