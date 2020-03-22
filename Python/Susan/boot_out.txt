@@ -1,1 +1,1 @@
-Adafruit CircuitPython 4.1.2 on 2019-12-18; Adafruit PyGamer with samd51j19
+Adafruit CircuitPython 5.0.0 on 2020-03-02; Adafruit PyGamer with samd51j19
