@@ -1,6 +1,6 @@
 from common import mycollections as coll
 
-nodesize = 100
+_nodesize = 100
 
 
 class ProximityNode:
@@ -24,7 +24,7 @@ class ProximityArray(coll.CircularArray):
         self.orientation = 0
 
     def factory(self):
-        return ProximityNode(nodesize)
+        return ProximityNode(_nodesize)
 
     def register(self, angle, value):
         #angle is with respect to orientation

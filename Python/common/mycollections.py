@@ -22,7 +22,7 @@ class CircularArray:
             self.currentIndex += 1
         return x
 
-    def GetArray(self,startFrom):
+    def GetArray(self, startFrom):
         return self.circarray[startFrom:] + self.circarray[:startFrom]
 
     def GetItem(self, startFrom, index):
@@ -33,8 +33,8 @@ class CircularArray:
 
 
 class RollingArray:
-    #This array will stay at one size
-    #When an item is pushed on, the bottom one is discarded
+    # This array will stay at one size
+    # When an item is pushed on, the bottom one is discarded
     def __init__(self, size):
         self.array = collections.deque()
         self.index = 0
