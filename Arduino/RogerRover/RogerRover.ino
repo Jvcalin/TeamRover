@@ -112,9 +112,9 @@ Serial.begin(115200);
   delay(1000);
   //SetupSensors();
   delay(1000);
-  //SetupMotors();
+  SetupMotors();
   delay(1000);
-  SetupSounds();
+  //SetupSounds();
   delay(1000);
   //SetupServos();
   delay(1000);
@@ -153,7 +153,7 @@ void loop() {
 
   //SensorsTick();
  
-  //MotorsTick();
+  MotorsTick();
   //SenseVibration();
   //ServoTick();
   delay(10);

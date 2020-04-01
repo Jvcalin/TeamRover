@@ -55,15 +55,20 @@ void ActionOff() {
 
 
 void GoStop(int wait = 0) {
-  //SPrintln("ActionStop");
+  currentAction = mSTOP;
+  SPrintln("ActionStop!!!");
   waitTimer = wait;
   spinning = false;
-  currentAction = mSTOP;
+  stopRun();
 }
 
 void ActionStop() {
-  
-  if (getCurrSpeed() > 0 || currentAction != mSTOP) {
+  //SPrint(currentAction);
+  //SPrint(" ");
+  //SPrintln(getCurrSpeed());
+    
+  if (getCurrSpeed() != 0 || spinning || currentAction != mSTOP){ 
+    SPrintln("I'm trying to stop!");
     stopRun();
     GoStop();
     return;
@@ -74,12 +79,12 @@ void ActionStop() {
     return;
   }
     
-  if (getDistance(fDistance) == isTOUCHING && getDistance(bDistance) == isTOUCHING) {
-    //Both front and back are covered
-    GoOff();
-    PlaySwoopDown();
-    SPrintln("OFF");
-  }
+  //if (getDistance(fDistance) == isTOUCHING && getDistance(bDistance) == isTOUCHING) {
+  //  //Both front and back are covered
+  //  GoOff();
+  //  PlaySwoopDown();
+  //  SPrintln("OFF");
+  //}
   
   /*   else if (getDistance(fDistance) == isTOUCHING) {
     //Hit something
@@ -223,6 +228,9 @@ void ActionReverse() {
 
 
 void MotorsTick() {
+  //SPrint(currentAction);
+  //SPrint(" ");
+  //SPrintln(getCurrSpeed());
 
   if (getDistance(fDistance) > isNOSIGNAL)
     fDistance = -1; //(rDistance + lDistance);// 2;
@@ -253,8 +261,12 @@ void MotorsTick() {
       ActionReverse();
       break;
     case mSTOP:
+      //SPrintln("Stopping!");
       ActionStop();
       break;
+    default:
+      //SPrintln("Stopping!!!!!!!");
+      ActionStop();
   }
   
 }

@@ -218,7 +218,7 @@ void goStraight() {
 }
 
 void stopRun() {
-  SPrintln("Stop");
+  SPrintln("Stop!!!");
   currSpeed = 0;
   motorMove(0);
 }
