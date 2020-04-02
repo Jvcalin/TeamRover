@@ -1,38 +1,46 @@
 from matrix_lite import led, sensors
+from ...common import rovercollections as collections
 import time
 import statistics as stat
 from math import pi, sin
-
+import json
 
 class Motion:
 
-    def __init__(self,parent):
-        self.parent = parent
-        self.xAccel = Coll.RollingArray(25)  
-        self.yAccel = Coll.RollingArray(25)  
-        self.zAccel = Coll.RollingArray(25)  
-        self.xSpin = Coll.RollingArray(25)
-        self.ySpin = Coll.RollingArray(25)
-        self.zSpin = Coll.RollingArray(25)
-        self.tilt = Coll.RollingArray(25)
-        self.roll = Coll.RollingArray(25)
-        self.yaw = Coll.RollingArray(25)
+    arraysize = 25
+
+    def __init__(self):
+        self.sensors = {}
+        self.sensors["xAccel"] = collections.RollingArray(arraysize)  
+        self.sensors["yAccel"] = collections.RollingArray(arraysize)  
+        self.sensors["zAccel"] = collections.RollingArray(arraysize)  
+        self.sensors["xSpin"] = collections.RollingArray(arraysize)
+        self.sensors["ySpin"] = collections.RollingArray(arraysize)
+        self.sensors["zSpin"] = collections.RollingArray(arraysize)
+        self.sensors["tilt"] = collections.RollingArray(arraysize)
+        self.sensors["roll"] = collections.RollingArray(arraysize)
+        self.sensors["yaw"] = collections.RollingArray(arraysize)
+        self.sensors["orientation"] = collections.RollingArray(arraysize)
 
     def read(self):
         imu = sensors.imu.read()
-        self.xAccel.push(imu.accel_x)  
-        self.yAccel.push(imu.accel_y)
-        self.zAccel.push(imu.accel_z)
-        self.xSpin.push(imu.gyro_x)  
-        self.xSpin.push(imu.gyro_y)  
-        self.xSpin.push(imu.gyro_z)  
-        self.tilt.push(imu.tilt)  
-        self.roll.push(imu.roll)  
-        self.yaw.push(imu.yaw)  
-        #TODO: finish
+        self.sensors["xAccel"].push(imu.accel_x)  
+        self.sensors["yAccel"].push(imu.accel_y)
+        self.sensors["zAccel"].push(imu.accel_z)
+        self.sensors["xSpin"].push(imu.gyro_x)  
+        self.sensors["xSpin"].push(imu.gyro_y)  
+        self.sensors["xSpin"].push(imu.gyro_z)  
+        self.sensors["tilt"].push(imu.tilt)  
+        self.sensors["roll"].push(imu.roll)  
+        self.sensors["yaw"].push(imu.yaw)  
+        self.sensors["orientation"].push(getOrientationAngle())
 
     def getOrientationAngle(self):
         return self.yaw / 2 * pi * 360  #TODO: calculate angle from here
+
+    def publishSensors(self, mqtt):
+        content = json.dumps(self.sensors)
+        mqtt.publish("roger/sensors/matrix/imu",content)
 
 
 class LEDArray:
@@ -43,6 +51,11 @@ class LEDArray:
         for i in range(35):
             self.ledarray.append({'r':0, 'g':0, 'b':0, 'w':0})
 
+    def parseCommand(self, payload):
+        args = payload.split(",")
+        method = "apply" + args.pop(0)
+        method(args)
+        
 
     def applyProxArray(self, array):
         ratio = len(array) / len(self.ledarray)
@@ -61,17 +74,17 @@ class LEDArray:
     def applyColor(self, color):
         led.set(color)
 
-    def clear(self):
+    def applyClear(self, nothing):
         led.set()
 
-    def applyRoundinaCircle(self, times, color):
+    def applyRoundinaCircle(self, args):
         everloop = ['black'] * led.length
-        everloop[0] = color
-        for i in range(times):
+        everloop[0] = args[0]
+        for i in range(args[1]):
             everloop.append(everloop.pop(0))
             led.set(everloop)
             time.sleep(0.050)
-        clear()
+        applyClear()
 
     def applyRainbow(self, times):
         everloop = ['black'] * led.length
@@ -82,7 +95,7 @@ class LEDArray:
         counter = 0.0
         tick = len(everloop) - 1
 
-        for i in range(times):
+        for i in range(times[0]):
         # Create rainbow
             for i in range(len(everloop)):
                 r = round(max(0, (sin(frequency*counter+(pi/180*240))*155+100)/10))
@@ -101,7 +114,20 @@ class LEDArray:
 
             led.set(everloop)
 
-            sleep(.035)
+            time.sleep(.035)
 
-        clear()
+        applyClear()
 
+    class Sensors:
+        def __init__(self):
+            pass
+            #temp/pressure/hum
+            #uv
+
+    class Microphones:
+        def __init__(self):
+            pass
+            #record sound
+            #sound direction
+
+    

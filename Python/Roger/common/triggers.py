@@ -52,6 +52,33 @@ class Trigger:
 	def setTrigger(self):
 		self.isSet = True
 
+class ArrayTrigger:
+	def __init__(self, name, sensor, arrayToObserve, shapeToMatch, doWhenMatched):
+		self.name = name
+		self.sensor = sensor
+		self.array = arrayToObserve
+		self.shape = shapeToMatch
+		self.doFunction = doWhenMatched
+		self.isSet = True
+		self.runOnce = False
+
+	def check(self):
+		if self.isSet and self.shape.compare(self.array):
+			if self.runOnce:
+				self.isSet = False
+			return True
+		else:
+			return False
+	
+	def setTrigger(self):
+		self.isSet = True
+
+class ArrayTriggerRecord:
+	def __init__(self, topicName, sensorName, shape):
+		self.name = topicName
+		self.sensor = sensorName
+		self.shape = shape
+
 """
 
 class SampleObj:

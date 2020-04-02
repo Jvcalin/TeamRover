@@ -1,18 +1,22 @@
-import rover
-import rogermqtt as mqtt
+from rover import Rover
+import time
+
+# The Rover Loop
+# Read and publish Matrix One Sensor Info
+# Get cmds to control RGB Pixels
 
 
-#this is the main loop
-STOP = False  #this will become true when a STOP file is placed in the inbox
+roger = Rover()
 
-#initialize mqtt
-roger = rover.Rover()
-mqtt.initializemqtt(roger)
 
-while not STOP:
-	roger.readSensors()
-	roger.checkEvents()
-	
+while True:
+	#roger.readSensors()
+	#roger.checkEvents()
+	#_mqtt.checkEvents()
+	#_triggers.check()
+	if roger.tick():
+		break
+	time.sleep(0.1)
 
 #check inbox for messages
 #readings
@@ -20,4 +24,7 @@ while not STOP:
 
 
 #close mqtt
-mqtt.closemqtt()
+#mqtt.closemqtt()
+
+#def subCallback():
+#	pass

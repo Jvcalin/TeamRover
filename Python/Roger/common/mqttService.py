@@ -26,11 +26,12 @@ class RoverMqtt:
     def __del__(self):
         # body of destructor
         self.closemqtt()
+        
 
     def closemqtt(self):
         self.thisMqtt.publish("roger/status", self.name + " stopping", 2, True)
         self.thisMqtt.loop_stop()
-
+        
 
     def on_message(self, client, userdata, message):
         print("got message")

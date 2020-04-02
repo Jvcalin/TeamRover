@@ -4,7 +4,7 @@ ProxSensors = { "front":Matrix.ProxSensor(0),
                 "left":Matrix.ProxSensor(45), 
                 "right":Matrix.ProxSensor(-45), 
                 "back":Matrix.ProxSensor(180)}
-"""
+
 
 
 
@@ -17,5 +17,5 @@ class ProxSensor:
     def read(self):
         return self.value
 
-
+"""
 
