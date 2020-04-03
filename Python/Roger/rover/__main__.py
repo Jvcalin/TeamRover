@@ -1,4 +1,4 @@
-from rover import Rover
+import Roger.rover.rover as rvr
 import time
 
 # The Rover Loop
@@ -6,7 +6,7 @@ import time
 # Get cmds to control RGB Pixels
 
 
-roger = Rover()
+roger = rvr.Rover()
 
 
 while True:

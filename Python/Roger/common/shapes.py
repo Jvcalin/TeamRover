@@ -18,11 +18,11 @@ class GraphShape:
 
 
 
-class GraphSections:
+class GraphSection:
     def __init__(self, size, slope, average):
         self.size = size
         self.slope = slope
-        self.average
+        self.average = average
 
 
 
@@ -43,5 +43,5 @@ def GetSlope(array):
 
 
 
-array = [0, 1.4, 2.6, 3.7, 4.9]
-print(GetSlope(array))
+# array = [0, 1.4, 2.6, 3.7, 4.9]
+# print(GetSlope(array))

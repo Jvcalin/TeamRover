@@ -7,9 +7,9 @@ import json
 
 class Motion:
 
-    arraysize = 25
 
     def __init__(self):
+        arraysize = 25
         self.sensors = {}
         self.sensors["xAccel"] = collections.RollingArray(arraysize)  
         self.sensors["yAccel"] = collections.RollingArray(arraysize)  

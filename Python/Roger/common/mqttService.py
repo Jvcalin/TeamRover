@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import time
 
-class RoverMqttSubscriptions:
+class RoverMqttSubscription:
     def __init__(self, topic, callback):
         self.topic = topic
         self.callBack = callback
@@ -86,8 +86,8 @@ class RoverMqtt:
 def subDo(message):
     print("subscribe " + message)
 
-sub1 = RoverMqttSubscriptions("roger/cmd/#", lambda x : subDo(x))
-sub2 = RoverMqttSubscriptions("roger/sensors/#", lambda x : subDo(x))
+sub1 = RoverMqttSubscription("roger/cmd/#", lambda x : subDo(x))
+sub2 = RoverMqttSubscription("roger/sensors/#", lambda x : subDo(x))
 
 subs = [sub1, sub2]
 
