@@ -1,14 +1,17 @@
 #sys.path.append("C:\Users\jvcal\Google Drive\IoT_Boards\TeamRover")
 #from ...rogercommon import mqttService as mqtt
-import Roger.common.mqttService as mqtt
-import Roger.common.triggers as triggers
-import Roger.common.shapes as shapes
+#from ...Python import Roger
+
+
+import common.mqttService as mqtt
+import common.triggers as triggers
+import common.shapes as shapes
 # import proximity as Prox
 # import grid as Grid
-import Roger.rover.matrixcreator as matrix # import Motion, LEDArray, Sensors, Microphones
+import matrixcreator as matrix # import Motion, LEDArray, Sensors, Microphones
 # import featherhuzzah as Feather
 # from ...common import triggers as trig
-import Roger.common.rovercollections as Coll
+import common.rovercollections as Coll
 import json
 
 class Rover:

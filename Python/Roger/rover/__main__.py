@@ -1,4 +1,4 @@
-import Roger.rover.rover as rvr
+import rover as rvr
 import time
 
 # The Rover Loop
@@ -10,13 +10,13 @@ roger = rvr.Rover()
 
 
 while True:
-	#roger.readSensors()
-	#roger.checkEvents()
-	#_mqtt.checkEvents()
-	#_triggers.check()
-	if roger.tick():
-		break
-	time.sleep(0.1)
+    #roger.readSensors()
+    #roger.checkEvents()
+    #_mqtt.checkEvents()
+    #_triggers.check()
+    if roger.tick():
+        break
+    time.sleep(0.5)
 
 #check inbox for messages
 #readings
@@ -27,4 +27,4 @@ while True:
 #mqtt.closemqtt()
 
 #def subCallback():
-#	pass
+#   pass

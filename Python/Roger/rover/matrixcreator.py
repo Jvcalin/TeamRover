@@ -1,5 +1,5 @@
 from matrix_lite import led, sensors
-from Roger.common import rovercollections as collections
+from common import rovercollections as collections
 import time
 import statistics as stat
 from math import pi, sin
@@ -17,7 +17,7 @@ class Motion:
         self.sensors["xSpin"] = collections.RollingArray(arraysize)
         self.sensors["ySpin"] = collections.RollingArray(arraysize)
         self.sensors["zSpin"] = collections.RollingArray(arraysize)
-        self.sensors["tilt"] = collections.RollingArray(arraysize)
+        self.sensors["pitch"] = collections.RollingArray(arraysize)
         self.sensors["roll"] = collections.RollingArray(arraysize)
         self.sensors["yaw"] = collections.RollingArray(arraysize)
         self.sensors["orientation"] = collections.RollingArray(arraysize)
@@ -28,19 +28,26 @@ class Motion:
         self.sensors["yAccel"].push(imu.accel_y)
         self.sensors["zAccel"].push(imu.accel_z)
         self.sensors["xSpin"].push(imu.gyro_x)  
-        self.sensors["xSpin"].push(imu.gyro_y)  
-        self.sensors["xSpin"].push(imu.gyro_z)  
-        self.sensors["tilt"].push(imu.tilt)  
+        self.sensors["ySpin"].push(imu.gyro_y)  
+        self.sensors["zSpin"].push(imu.gyro_z)  
+        self.sensors["pitch"].push(imu.pitch)  
         self.sensors["roll"].push(imu.roll)  
         self.sensors["yaw"].push(imu.yaw)  
-        self.sensors["orientation"].push(getOrientationAngle())
+        self.sensors["orientation"].push(self.getOrientationAngle(imu.yaw))
 
-    def getOrientationAngle(self):
-        return self.yaw / 2 * pi * 360  #TODO: calculate angle from here
+    def getOrientationAngle(self, val):
+        return val / 2 * pi * 360  #TODO: calculate angle from here
 
     def publishSensors(self, mqtt):
-        content = json.dumps(self.sensors)
+        self.read()
+        content = json.dumps(self.serializeSensors())
         mqtt.publish("roger/sensors/matrix/imu",content)
+        
+    def serializeSensors(self):
+        sensorsDict = {}
+        for s in self.sensors:
+            sensorsDict[s] = self.sensors[s].getAvg()
+        return sensorsDict
 
 
 class LEDArray:
