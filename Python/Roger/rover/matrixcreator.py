@@ -55,7 +55,7 @@ class LEDArray:
 
     def __init__(self):
         self.ledarray = []
-        for i in range(35):
+        for i in range(led.length):
             self.ledarray.append({'r':0, 'g':0, 'b':0, 'w':0})
 
     def parseCommand(self, payload):
@@ -91,8 +91,8 @@ class LEDArray:
 
     def applyRoundinaCircle(self, ledarray, args):
         everloop = ['black'] * led.length
-        everloop[0] = args[0]
-        for i in range(args[1]):
+        everloop[0] = 'blue' #args[0]
+        for i in range(int(args[0]) * led.length):
             everloop.append(everloop.pop(0))
             led.set(everloop)
             time.sleep(0.050)
@@ -109,7 +109,7 @@ class LEDArray:
         counter = 0.0
         tick = len(everloop) - 1
 
-        for i in range(int(times[0])):
+        for j in range(int(times[0]) * len(everloop)):
         # Create rainbow
             for i in range(len(everloop)):
                 r = round(max(0, (sin(frequency*counter+(pi/180*240))*155+100)/10))
