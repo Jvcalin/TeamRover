@@ -96,7 +96,7 @@ class LEDArray:
             everloop.append(everloop.pop(0))
             led.set(everloop)
             time.sleep(0.050)
-        self.applyClear()
+        self.applyClear(ledarray,1)
 
     def applyRainbow(self, ledarray, times):
         print("Applying rainbow")
@@ -130,7 +130,7 @@ class LEDArray:
 
             time.sleep(.035)
 
-        self.applyClear()
+        self.applyClear(ledarray,1)
 
 
 
