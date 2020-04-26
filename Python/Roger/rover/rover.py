@@ -20,9 +20,9 @@ class Rover:
     def __init__(self):
         self.stop = False
         #initialize mqtt
-        mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix/led", lambda x : self.LEDCmd(x))] 
-        mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix/triggers/add", lambda x : self.AddTriggerCmd(x))] 
-        mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix", lambda x : self.MatrixCmd(x))] 
+        mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix/led", lambda x : self.LEDCmd(x)), 
+                    mqtt.RoverMqttSubscription("roger/cmd/matrix/triggers/add", lambda x : self.AddTriggerCmd(x)), 
+                    mqtt.RoverMqttSubscription("roger/cmd/matrix", lambda x : self.MatrixCmd(x))] 
         self.mqtt = mqtt.RoverMqtt("Roger_Rover_Loop", mqttSubs)
 
         self.motion = matrix.Motion()
@@ -43,10 +43,10 @@ class Rover:
     def tick(self):
         self.motion.read()
 
-        if checkTimer(0):
+        if self.checkTimer(0):
             self.motion.publishSensors(self.mqtt)
 
-        if checkTimer(1):
+        if self.checkTimer(1):
             self.triggers.check()
        
         return self.stop
@@ -60,9 +60,11 @@ class Rover:
             return False
 
     def LEDCmd(self, cmdText):
+        print("LEDCmd Received " + cmdText)
         self.leds.parseCommand(cmdText)
 
     def AddTriggerCmd(self, cmdText):
+        print("AddTriggerCmd Received " + cmdText)
         topic = "roger/event/matrix/"
         t = json.loads(cmdText)
         sections = []
@@ -79,6 +81,7 @@ class Rover:
         self.SaveTriggers()
 
     def MatrixCmd(self, cmdText):
+        print("MatrixCmd Received " + cmdText)
         if (cmdText == "stop"):
             self.stop = True
 
@@ -122,7 +125,7 @@ class Rover:
         for t in self.triggers.triggers:
             sections = []
             for s in t.shape.sections:
-                sections.append({"size":s.size, "slope":s.slope, "average":s.average})
+                sections.append({"size":s.size, "slope":s.slope, "average":s.average, "error":s.error})
             arrayTriggerRecords.append({"name":t.name,"sensor":t.sensor,"shape":sections})
         f = open(self.triggerFile, "wt")
         f.write(json.dumps(arrayTriggerRecords))

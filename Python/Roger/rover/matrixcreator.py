@@ -59,14 +59,18 @@ class LEDArray:
             self.ledarray.append({'r':0, 'g':0, 'b':0, 'w':0})
 
     def parseCommand(self, payload):
-        args = payload.split(",")
-        method = "apply" + args.pop(0)
-        method(args)
+        print("Parsing " + payload)
+        arguments = payload.split(",")
+        method = "apply" + arguments.pop(0)
+        print("Parsed: " + method)
+        print(arguments)
+        command = getattr(self, method)
+        command(self.ledarray, arguments)
         
 
-    def applyProxArray(self, array):
-        ratio = len(array) / len(self.ledarray)
-        for i in range(0,len(self.ledarray)):
+    def applyProxArray(self, ledarray, array):
+        ratio = len(array) / len(ledarray)
+        for i in range(0,len(ledarray)):
             low = round(i * ratio)
             high = round((i + 1) * ratio)
             if high > len(array):
@@ -75,25 +79,28 @@ class LEDArray:
             for x in array[low:high]:
                 subarray.append(x.getValue())
             intensity = round(stat.mean(subarray) / MAXDISTANCE * 255)
-            self.ledarray[i] = {'r':intensity, 'g':0, 'b':0, 'w':0}  #red
-        led.set(self.ledarray)
+            ledarray[i] = {'r':intensity, 'g':0, 'b':0, 'w':0}  #red
+        led.set(ledarray)
 
-    def applyColor(self, color):
-        led.set(color)
+    def applyColor(self, ledarray, color):
+        print("Applying color " + color[0])
+        led.set(color[0])
 
-    def applyClear(self, nothing):
+    def applyClear(self, ledarray, nothing):
         led.set()
 
-    def applyRoundinaCircle(self, args):
+    def applyRoundinaCircle(self, ledarray, args):
         everloop = ['black'] * led.length
         everloop[0] = args[0]
         for i in range(args[1]):
             everloop.append(everloop.pop(0))
             led.set(everloop)
             time.sleep(0.050)
-        applyClear()
+        self.applyClear()
 
-    def applyRainbow(self, times):
+    def applyRainbow(self, ledarray, times):
+        print("Applying rainbow")
+        
         everloop = ['black'] * led.length
 
         ledAdjust = 0.51 # MATRIX Creator
@@ -102,7 +109,7 @@ class LEDArray:
         counter = 0.0
         tick = len(everloop) - 1
 
-        for i in range(times[0]):
+        for i in range(int(times[0])):
         # Create rainbow
             for i in range(len(everloop)):
                 r = round(max(0, (sin(frequency*counter+(pi/180*240))*155+100)/10))
@@ -123,18 +130,22 @@ class LEDArray:
 
             time.sleep(.035)
 
-        applyClear()
+        self.applyClear()
 
-    class Sensors:
-        def __init__(self):
-            pass
-            #temp/pressure/hum
-            #uv
 
-    class Microphones:
-        def __init__(self):
-            pass
-            #record sound
-            #sound direction
 
-    
+
+
+class Sensors:
+    def __init__(self):
+        pass
+        #temp/pressure/hum
+        #uv
+
+class Microphones:
+    def __init__(self):
+        pass
+        #record sound
+        #sound direction
+
+
