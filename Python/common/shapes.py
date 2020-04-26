@@ -9,8 +9,8 @@ class GraphShape:
 
     def compare(self, array, error = 0.25):
         i = 0
-        for s in sections:
-            d = GetSlope(array[i,s.size])
+        for s in self.sections:
+            d = GetSlope(array[i:s.size])
             i += s.size
             if d > (s.slope + error) or d < (s.slope - error):
                 return False

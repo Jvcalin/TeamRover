@@ -21,6 +21,7 @@ class Motion:
         self.sensors["roll"] = collections.RollingArray(arraysize)
         self.sensors["yaw"] = collections.RollingArray(arraysize)
         self.sensors["orientation"] = collections.RollingArray(arraysize)
+        self.read()
 
     def read(self):
         imu = sensors.imu.read()
@@ -39,7 +40,6 @@ class Motion:
         return val / 2 * pi * 360  #TODO: calculate angle from here
 
     def publishSensors(self, mqtt):
-        self.read()
         content = json.dumps(self.serializeSensors())
         mqtt.publish("roger/sensors/matrix/imu",content)
         

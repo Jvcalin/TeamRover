@@ -13,35 +13,70 @@ import matrixcreator as matrix # import Motion, LEDArray, Sensors, Microphones
 # from ...common import triggers as trig
 import common.rovercollections as Coll
 import json
+import os
 
 class Rover:
     
     def __init__(self):
         self.stop = False
         #initialize mqtt
-        mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix/led", lambda x : LEDCmd(x))] 
-        mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix", lambda x : MatrixCmd(x))] 
-        self.mqtt = mqtt.RoverMqtt("Roger_Rover_Loop",mqttSubs)
+        mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix/led", lambda x : self.LEDCmd(x))] 
+        mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix/triggers/add", lambda x : self.AddTriggerCmd(x))] 
+        mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix", lambda x : self.MatrixCmd(x))] 
+        self.mqtt = mqtt.RoverMqtt("Roger_Rover_Loop", mqttSubs)
 
         self.motion = matrix.Motion()
         self.leds = matrix.LEDArray()
+        self.timers = [50,25]   #initial values - they count to 0
+        self.timerSizes = [50,25]  #size of timer
+
         #self.motion.readSensors()
 
         #set up the trigger manager
-        self.triggers = triggers.TriggerCollection()
-        for t in self.CreateTriggers():
-            self.triggers.add(t)
+        self.triggerFile = "../triggers.txt"
+        self.triggerFileSize = os.path.getsize(self.triggerFile)
+        self.BuildTriggers()
 
     def __del__(self):
         self.SaveTriggers()
 
     def tick(self):
-        self.motion.publishSensors(self.mqtt)
-        self.triggers.check()
+        self.motion.read()
+
+        if checkTimer(0):
+            self.motion.publishSensors(self.mqtt)
+
+        if checkTimer(1):
+            self.triggers.check()
+       
         return self.stop
-        
+
+    def checkTimer(self, index):
+        if self.timers[index] <= 0:
+            self.timers[index] = self.timerSizes[index]
+            return True
+        else:
+            self.timers[index] -= 1
+            return False
+
     def LEDCmd(self, cmdText):
         self.leds.parseCommand(cmdText)
+
+    def AddTriggerCmd(self, cmdText):
+        topic = "roger/event/matrix/"
+        t = json.loads(cmdText)
+        sections = []
+        for s in t["shape"]:
+            ss = shapes.GraphSection(s["size"],s["slope"],s["average"],s["error"])
+            sections.append(ss)
+        shape = shapes.GraphShape(sections)
+        tt = triggers.ArrayTrigger(t["name"],
+            t["sensor"], 
+            self.motion.sensors[t["sensor"]], 
+            shape,
+            lambda : self.PublishEvent(topic + t["name"],self.motion.sensors[t["sensor"]].getAvg()))
+        self.triggers.add(tt)
+        self.SaveTriggers()
 
     def MatrixCmd(self, cmdText):
         if (cmdText == "stop"):
@@ -50,16 +85,28 @@ class Rover:
     def PublishEvent(self, topic, message):
         mqtt.publish(topic, message)
 
+    def BuildTriggers(self):
+        self.triggers = triggers.TriggerCollection()
+        for t in self.CreateTriggers():
+            self.triggers.add(t)
+
+        # #add an additional trigger to reload the triggers if the file changes
+        # fileChangeTrigger = triggers.Trigger(self.triggerFileSize,
+        # lambda x : x != os.path.getsize(self.triggerFile),
+        # self.BuildTriggers)
+        # self.triggers.add(fileChangeTrigger)
+
     def CreateTriggers(self):
         topic = "roger/event/matrix/"
-        f = open("triggers.txt", "rt")
+        self.triggerFileSize = os.path.getsize(self.triggerFile)
+        f = open(self.triggerFile, "rt")
         arrayTriggerRecords = json.loads(f.read())
         f.close()
         triggerlist = []
         for t in arrayTriggerRecords:
             sections = []
             for s in t["shape"]:
-                ss = shapes.GraphSection(s["size"],s["slope"],s["average"])
+                ss = shapes.GraphSection(s["size"],s["slope"],s["average"],s["error"])
                 sections.append(ss)
             shape = shapes.GraphShape(sections)
             tt = triggers.ArrayTrigger(t["name"],
@@ -77,7 +124,7 @@ class Rover:
             for s in t.shape.sections:
                 sections.append({"size":s.size, "slope":s.slope, "average":s.average})
             arrayTriggerRecords.append({"name":t.name,"sensor":t.sensor,"shape":sections})
-        f = open("triggers.txt", "wt")
+        f = open(self.triggerFile, "wt")
         f.write(json.dumps(arrayTriggerRecords))
         f.close()
 

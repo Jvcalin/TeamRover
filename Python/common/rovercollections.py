@@ -36,20 +36,25 @@ class RollingArray:
     # This array will stay at one size
     # When an item is pushed on, the bottom one is discarded
     def __init__(self, size):
-        self.array = collections.deque()
+        self.array = [] #collections.deque()
         self.index = 0
         self.size = size
 
     def push(self, item):
         self.array.append(item)
-        if len(self.array) > self.size:
-            self.array.popleft()
+        while len(self.array) > self.size:
+            del self.array[0]
+            #self.array.popleft()
 
     def weight(self):
         return len(self.array)
 
     def get(self):
         return self.array
+        #arr = []
+        #for s in self.array:
+        #    arr.append(s)
+        #return arr
 
     def getAvg(self):
         return stat.mean(self.array)
