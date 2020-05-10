@@ -1,6 +1,9 @@
 #sys.path.append("C:\Users\jvcal\Google Drive\IoT_Boards\TeamRover")
 #from ...rogercommon import mqttService as mqtt
 #from ...Python import Roger
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).parent.parent.parent))  #Make common library available
 
 
 import common.mqttService as mqtt

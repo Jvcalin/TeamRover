@@ -7,23 +7,23 @@ class GraphShape:
         for s in self.sections:
             self.size += s.size
 
-    def compare(self, array, error = 0.25):
+    def compare(self, array):
         i = 0
         for s in self.sections:
             d = GetSlope(array[i:s.size])
             i += s.size
-            if d > (s.slope + error) or d < (s.slope - error):
+            if d > (s.slope + s.error) or d < (s.slope - s.error): 
                 return False
         return True 
 
 
 
 class GraphSection:
-    def __init__(self, size, slope, average):
+    def __init__(self, size, slope, average, error):
         self.size = size
         self.slope = slope
         self.average = average
-
+        self.error = error
 
 
 def GetSlope(array):
