@@ -2,16 +2,18 @@
 from adafruit_pybadger import pygamer
 import WiFiMqtt
 
+#https://circuitpython.readthedocs.io/projects/pybadger/en/latest/
+
 # button definitions
 # up - forward
 # down - reverse
 # left/right - spin left/right
 # center - stop
-# up+left/right - swerve left/right (not implemented)
-# back+left/right - swerve left/right (not implemented)
+# up+left/right - swerve left/right 
+# back+left/right - swerve left/right 
 
-# a - beep
-# b - swoopup
+# a - go faster
+# b - go slower
 # start - power on/off (not implemented yet)
 # select - switch devices (not implemented yet)
 
@@ -50,7 +52,15 @@ class MyPyGamer():
         else:
             self.select_up()
 
-        if self.me.button.up:
+        if self.me.button.up and self.me.button.left:
+            self.direction("TurnLeft")
+        elif self.me.button.up and self.me.button.right:
+            self.direction("TurnRight")
+        elif self.me.button.down and self.me.button.left:
+            self.direction("ReverseLeft")
+        elif self.me.button.down and self.me.button.right:
+            self.direction("ReverseRight")
+        elif self.me.button.up:
             self.direction("Forward")
         elif self.me.button.down:
             self.direction("Reverse")
@@ -69,7 +79,7 @@ class MyPyGamer():
     def a_up(self):
         if self.values["abutton"] == 1:
             self.values["abutton"] = 0
-            self.mqtt.publishMessage(self.beepfeed,"Beep")
+            self.direction("GoFaster")
             print("a up")
 
     def b_press(self):
@@ -80,7 +90,7 @@ class MyPyGamer():
     def b_up(self):
         if self.values["bbutton"] == 1:
             self.values["bbutton"] = 0
-            self.mqtt.publishMessage(self.beepfeed,"SwoopUp")
+            self.direction("GoSlower")
             print("b up")
 
     def start_press(self):

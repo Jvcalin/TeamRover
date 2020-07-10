@@ -164,4 +164,12 @@ while True:
 //roger/cmd/feather/beep => "swoopup"
 //roger/cmd/feather/motor => "forward"
 //roger/cmd/feather/servo => "h,v"
+
+//LOGGING
+//cyke/telegraf/cmd
+//cyke/telegraf/sensor
+//cyke/telegraf/status
+
+InfluxDb Format:
+weather location="us",sensor="temp" temperature=78.1,humidity=23.1,description="wet",rain=true 
 """
