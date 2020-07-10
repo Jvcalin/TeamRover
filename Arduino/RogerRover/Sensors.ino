@@ -6,15 +6,22 @@
 //Private Variables
 
 //Ultrasonic Sensor
-#define fEchoPin 12  //ESP8266 GPIOs
-#define rEchoPin 13
-#define lEchoPin 16
-#define bEchoPin 15
+//#define fEchoPin 12  //ESP8266 GPIOs
+//#define rEchoPin 13
+//#define lEchoPin 16
+//#define bEchoPin 15
+
+#define fEchoPin 17  //ESP32 GPIOs
+#define rEchoPin 16
+#define lEchoPin 21
+#define bEchoPin 19
 
 #define fTrigPin 11  //Seesaw GPIOs
 #define rTrigPin 14  
 #define lTrigPin 10  
 #define bTrigPin 15 
+
+#define esp32BattPin A13
 
 #define vibrationPin 0
 //#define ledPin 9
@@ -26,6 +33,12 @@
 #define LEFT 1003;
 #define RIGHT 1004;
 
+
+int fDistance = 99;
+int bDistance = 99;
+int lDistance = 99;
+int rDistance = 99;
+
 Adafruit_INA219 ina219(0x41);
 //Adafruit_INA219 ina219_A;
 //Adafruit_INA219 ina219_B(0x41);
@@ -34,7 +47,7 @@ Adafruit_INA219 ina219(0x41);
 
 
 Adafruit_seesaw ss1;
-Adafruit_seesaw ss2;
+//Adafruit_seesaw ss2;
 
 void SetupSensors() {
     //SPrint("Starting");
@@ -46,11 +59,11 @@ void SetupSensors() {
     }
       else SPrintln("seesaw1 started");
       
-    if(!ss2.begin(SEESAW_ADDRESS2,-1,true)){
-      SPrintln("ERROR!");
-      //while(1);
-    }
-      else SPrintln("seesaw2 started");  
+    //if(!ss2.begin(SEESAW_ADDRESS2,-1,true)){
+    //  SPrintln("ERROR!");
+    //  //while(1);
+    //}
+    //  else SPrintln("seesaw2 started");  
 
         
     //pinMode(opSensorPin, INPUT);
@@ -63,6 +76,7 @@ void SetupSensors() {
     ss1.pinMode(rTrigPin, OUTPUT);
     pinMode(rEchoPin, INPUT);
 
+    pinMode(esp32BattPin, OUTPUT);
     //ss1.pinMode(ledPin, OUTPUT);
     
     // Initialize the INA219.
@@ -99,16 +113,17 @@ void SensorsTick() {
 
 void printUltrasonicSensorReadings() {
       
-  SPrint(getDistance(fDistance));
-  SPrint("-");
-  SPrint(getDistance(lDistance));
-  SPrint("-");
-  SPrint(getDistance(rDistance));
-  SPrint("-");
-  SPrint(getDistance(bDistance));
+  SPrint("F");
+  SPrint(fDistance);
+  SPrint("-L");
+  SPrint(lDistance);
+  SPrint("-R");
+  SPrint(rDistance);
+  SPrint("-B");
+  SPrint(bDistance);
   SPrint("-");
   SPrint(getCurrentAction());
-  SPrint("-");
+  SPrint("-S");
   SPrint(getCurrSpeed());
   SPrintln("");
 
@@ -154,12 +169,6 @@ int ultrasonicSensorDetect(int trigPin, int echoPin) {
   long duration = 0;
   long inches = 0;
   long cm = 0;
-
-  //ss1.digitalWrite(ledPin, LOW);
-  //delayMicroseconds(5);
-  //ss1.digitalWrite(ledPin, HIGH);
-  //delayMicroseconds(10);
-  //ss1.digitalWrite(ledPin, LOW);
   
   ss1.digitalWrite(trigPin, LOW);
   delayMicroseconds(5);
@@ -172,20 +181,6 @@ int ultrasonicSensorDetect(int trigPin, int echoPin) {
 
   cm = (duration/2) / 29.1;     // Divide by 29.1 or multiply by 0.0343
   inches = (duration/2) / 74;   // Divide by 74 or multiply by 0.0135
-  
-  //SPrint(trigPin);
-  //SPrint(",");
-  //SPrint(echoPin);
-  //SPrint("  --   ");
-  //SPrint(duration);
-  //SPrint("  --   ");
-  //SPrint(inches);
-  //SPrint("in,   ");
-  //SPrint(cm);
-  //SPrint("cm");
-  //SPrintln("");
-  
-  //delay(500);
 
   return inches;
 }
@@ -206,7 +201,7 @@ void SenseVibration() {
 }
 
 
-void readBatterySensor() {
+float readBatterySensor() {
   float shuntvoltage = 0;
   float busvoltage = 0;
   float current_mA = 0;
@@ -218,7 +213,7 @@ void readBatterySensor() {
   current_mA = ina219.getCurrent_mA();
   power_mW = ina219.getPower_mW();
   loadvoltage = busvoltage + (shuntvoltage / 1000);
-  
+  /*
   SPrint("Bus Voltage:   "); SPrint(busvoltage); SPrintln(" V");
   SPrint("Shunt Voltage: "); SPrint(shuntvoltage); SPrintln(" mV");
   SPrint("Load Voltage:  "); SPrint(loadvoltage); SPrintln(" V");
@@ -226,7 +221,18 @@ void readBatterySensor() {
   SPrint("Power:         "); SPrint(power_mW); SPrintln(" mW");
   SPrintln("");
 
-  delay(2000);
+  delay(2000); */
+
+  //https://forums.adafruit.com/viewtopic.php?f=19&t=127291#:~:text=The%20bus%20voltage%20is%20the,in%20series%20with%20the%20load..
+  /*
+   * The bus voltage is the total voltage between power and GND. It is the sum of the load voltage and the shunt voltage.
+The load voltage is the voltage going to the load.
+The shunt voltage is the voltage drop across the shunt resistor that is in series with the load
+   */
+  return busvoltage;
 }
 
+float readESP32BatterySensor() {
+  return analogRead(esp32BattPin);
+}
 //Private Functions

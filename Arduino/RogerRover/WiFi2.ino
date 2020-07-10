@@ -1,6 +1,7 @@
 //https://github.com/plapointe6/EspMQTTClient
 
 #include "EspMQTTClient.h"
+#include <ArduinoJson.h>
 
 #define BEEP_FEED "roger/cmd/feather/beep"
 #define MOTOR_FEED "roger/cmd/feather/motor"
@@ -76,12 +77,37 @@ void MQTTPublish(String topic, String message) {
 }
 
 void MQTTPublishSensors() {
-  MQTTPublish(BASE_TOPIC_PATH "proxf", String(getFrontDistance()));
-  MQTTPublish(BASE_TOPIC_PATH "proxb", String(getBackDistance()));
-  MQTTPublish(BASE_TOPIC_PATH "proxl", String(getLeftDistance()));
-  MQTTPublish(BASE_TOPIC_PATH "proxr", String(getRightDistance()));
-  MQTTPublish(BASE_TOPIC_PATH "motorspeed", String(getCurrSpeed()));
-  MQTTPublish(BASE_TOPIC_PATH "motoraction", String(getCurrentAction()));
-  MQTTPublish(BASE_TOPIC_PATH "servohpos", String(getServoHPos()));
-  MQTTPublish(BASE_TOPIC_PATH "servovpos", String(getServoVPos()));
+//https://assetwolf.com/learn/sending-data-from-arduino-to-cloud
+//https://arduinojson.org/v6/doc/upgrade/
+
+  String sPayload;
+  char* cPayload;
+  DynamicJsonDocument payload(1024);
+
+  payload["proxf"] = getFrontDistance();
+  payload["proxb"] = getBackDistance();
+  payload["proxl"] = getLeftDistance();
+  payload["proxr"] = getRightDistance();
+  payload["motorspeed"] = getCurrSpeed();
+  payload["motoraction"] = getCurrentAction();
+  //payload["servohpos"] = getServoHPos();
+  //payload["servovpos"] = getServoVPos());
+  payload["batteryvoltage"] = readBatterySensor();
+  payload["esp32voltage"] = readESP32BatterySensor();
+
+  sPayload = "";
+  serializeJsonPretty(payload, sPayload);
+  cPayload = &sPayload[0u];
+
+  Serial.println(sPayload);  //we don't want to go to oled or mqtt
+  MQTTPublish(BASE_TOPIC_PATH "values", cPayload);
+    
+  //MQTTPublish(BASE_TOPIC_PATH "proxf", String(getFrontDistance()));
+  //MQTTPublish(BASE_TOPIC_PATH "proxb", String(getBackDistance()));
+  //MQTTPublish(BASE_TOPIC_PATH "proxl", String(getLeftDistance()));
+  //MQTTPublish(BASE_TOPIC_PATH "proxr", String(getRightDistance()));
+  //MQTTPublish(BASE_TOPIC_PATH "motorspeed", String(getCurrSpeed()));
+  //MQTTPublish(BASE_TOPIC_PATH "motoraction", String(getCurrentAction()));
+  //MQTTPublish(BASE_TOPIC_PATH "servohpos", String(getServoHPos()));
+  //MQTTPublish(BASE_TOPIC_PATH "servovpos", String(getServoVPos()));
 }

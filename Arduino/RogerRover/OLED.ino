@@ -40,21 +40,31 @@ void SetupOLED() {
    display.setTextColor(WHITE);
    display.setCursor(0,0);
   
-   pinMode(BUTTON_A, INPUT_PULLUP);
-   pinMode(BUTTON_B, INPUT_PULLUP);
-   pinMode(BUTTON_C, INPUT_PULLUP);
+   //pinMode(BUTTON_A, INPUT_PULLUP);
+   //pinMode(BUTTON_B, INPUT_PULLUP);
+   //pinMode(BUTTON_C, INPUT_PULLUP);
+
+   attachInterrupt(digitalPinToInterrupt(BUTTON_A), DoButtonA, RISING);
+   attachInterrupt(digitalPinToInterrupt(BUTTON_B), DoButtonB, RISING);
+   attachInterrupt(digitalPinToInterrupt(BUTTON_C), DoButtonC, RISING);
+   //LOW to trigger the interrupt whenever the pin is low,
+   //CHANGE to trigger the interrupt whenever the pin changes value
+   //RISING to trigger when the pin goes from low to high,
+   //FALLING for when the pin goes from high to low.
+
+
    
    SPrintln("Starting OLED");
 
 }
 
-void OLEDTick() {
+//void OLEDTick() {
   //Checks to see if the buttons have been pressed
-   if(!digitalRead(BUTTON_A)) DoButtonA();
+   //if(!digitalRead(BUTTON_A)) DoButtonA();
    //if(!digitalRead(BUTTON_B)) DoButtonB();
-   if(!digitalRead(BUTTON_C)) DoButtonC();
+   //if(!digitalRead(BUTTON_C)) DoButtonC();
    
-}
+//}
 
 void ClearOLED() {
    display.clearDisplay();

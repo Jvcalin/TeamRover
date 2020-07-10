@@ -6,8 +6,8 @@
 //Private Variables
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *leftMotor = AFMS.getMotor(3);
-Adafruit_DCMotor *rightMotor = AFMS.getMotor(4);
-Adafruit_DCMotor *lBackMotor = AFMS.getMotor(2);
+Adafruit_DCMotor *rightMotor = AFMS.getMotor(2);
+Adafruit_DCMotor *lBackMotor = AFMS.getMotor(4);
 Adafruit_DCMotor *rBackMotor = AFMS.getMotor(1);
 
 //int leftMotorSpeed = 3;
@@ -245,10 +245,10 @@ void goSlower() {
 
 void goForward() {
   SPrintln("Go Forward");
-  if (currSpeed < 0) {
+  if (currSpeed <= 0) {
     //if going in reverse, come to a full stop first before going forward
     motorMove(0);
-    currSpeed = 1;
+    currSpeed = 2; //initial speed
   } else {
     currSpeed++;
   }
@@ -257,10 +257,10 @@ void goForward() {
 
 void goReverse() {
   SPrintln("Go Backward");
-  if (currSpeed > 0) {
+  if (currSpeed >= 0) {
     //if going forward, come to a full stop first before going in reverse
     motorMove(0);
-    currSpeed = -1;
+    currSpeed = -2; //initial speed
   } else {
     currSpeed--;
   }

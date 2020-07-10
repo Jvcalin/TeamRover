@@ -36,10 +36,10 @@
 //A5/4
 //SCK/5
 //MOSI/18
-//MISO/19
-//RX/16
-//TX/17
-//21
+//MISO/19 - purple- ultrasonic back echo
+//RX/16 - gray - ultrasonic right echo
+//TX/17 - white - ultrasonic front echo
+//21 - black - ultrasonic left echo
 
 //A13 - Voltage level
 
@@ -82,35 +82,23 @@
 long timer = 0;
 long timer1 = 50;
 
-int fDistance = 50;
-int bDistance = 50;
-int lDistance = 50;
-int rDistance = 50;
-
 int redLedState = HIGH;
 
 void setup() {
-Serial.begin(115200); 
+  //Serial.begin(115200); 
 
 
   pinMode(redLed, OUTPUT);
   blinkRedLED();
   delay(1000);
   blinkRedLED();
-  delay(1000);
+  delay(500);
   blinkRedLED();
   delay(1000); 
 
-  //attachInterrupt(digitalPinToInterrupt(BUTTON_A), DoButtonA, RISING);
-  //attachInterrupt(digitalPinToInterrupt(BUTTON_B), DoButtonB, RISING);
-  //attachInterrupt(digitalPinToInterrupt(BUTTON_C), DoButtonC, RISING);
-//LOW to trigger the interrupt whenever the pin is low,
-//CHANGE to trigger the interrupt whenever the pin changes value
-//RISING to trigger when the pin goes from low to high,
-//FALLING for when the pin goes from high to low.
   SetupSerial();
   delay(1000);
-  //SetupSensors();
+  SetupSensors();
   delay(1000);
   SetupMotors();
   delay(1000);
@@ -138,10 +126,12 @@ SPrintln("Starting Program");
 void loop() {
   long startLoop = millis();
 
-  if (timer1 > 50 && true && !IsOff()) {
+  if (timer1 > 50 && !IsOff()) {
     timer1 = 0;
-  
-    //printUltrasonicSensorReadings();
+    //SPrintln("");
+    
+    SensorsTick();
+    printUltrasonicSensorReadings();
     //readBatterySensor();
   
     redLedState = FlipValue(redLedState);
@@ -151,14 +141,13 @@ void loop() {
     WiFiTick();  
   }
 
-  //SensorsTick();
- 
   MotorsTick();
   //SenseVibration();
   //ServoTick();
   delay(10);
    
   long timeElapsed = millis() - startLoop;
+  //SPrint(".");
   //SPrint("Loop:");
   //SPrint(timeElapsed);
   //SPrint("ms ");
@@ -172,7 +161,7 @@ void loop() {
 
 void testloop() {
   // put your main code here, to run repeatedly:
-  //SPrintln("Starting the loop");
+  SPrintln("Starting the loop");
   long startLoop = millis();
 
   //blinkRedLED();
@@ -181,7 +170,7 @@ void testloop() {
   //TestMotor();
   //motorSpeedTest();
   //backMotorSpeedTest();
-  //IndividualWheelTest();
+  IndividualWheelTest();
   //return;
   
   //OLEDTick();
@@ -210,14 +199,14 @@ if (timer1 > 50 && true && !IsOff()) {
   digitalWrite(redLed, redLedState);
 }
 
-  SensorsTick();
+  //SensorsTick();
  
   delay(10);
   
-  MotorsTick();
+  //MotorsTick();
   //SenseVibration();
 
-  WiFiTick();
+  //WiFiTick();
 
 
   long timeElapsed = millis() - startLoop;

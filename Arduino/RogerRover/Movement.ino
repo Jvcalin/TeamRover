@@ -79,29 +79,29 @@ void ActionStop() {
     return;
   }
     
-  //if (getDistance(fDistance) == isTOUCHING && getDistance(bDistance) == isTOUCHING) {
+  //if (getDistance(getFrontDistance()) == isTOUCHING && getDistance(getBackDistance()) == isTOUCHING) {
   //  //Both front and back are covered
   //  GoOff();
   //  PlaySwoopDown();
   //  SPrintln("OFF");
   //}
   
-  /*   else if (getDistance(fDistance) == isTOUCHING) {
+  /*   else if (getDistance(getFrontDistance()) == isTOUCHING) {
     //Hit something
     GoReverse();
-  } else if (getDistance(fDistance) == isCLOSE && getDistance(rDistance) == isCLOSE && getDistance(lDistance) == isCLOSE) {
+  } else if (getDistance(getFrontDistance()) == isCLOSE && getDistance(getRightDistance()) == isCLOSE && getDistance(getLeftDistance()) == isCLOSE) {
     //Closed on three sides
     GoReverse();
-  } else if (getDistance(fDistance) == isCLOSE) {  
+  } else if (getDistance(getFrontDistance()) == isCLOSE) {  
     //Stopped at wall
-    if (lDistance >= rDistance) 
+    if (getLeftDistance() >= getRightDistance()) 
       GoSpinLeft(); 
-    else if (rDistance > lDistance)
+    else if (getRightDistance() > getLeftDistance())
       GoSpinRight();   
-  } else if (getDistance(bDistance) == isCLOSE) {
+  } else if (getDistance(getBackDistance()) == isCLOSE) {
     //Wall behind
     GoForward();
-  } else if (getDistance(fDistance) > isCLOSE) {
+  } else if (getDistance(getFrontDistance()) > isCLOSE) {
     //Default movement
     GoForward();
   }  */
@@ -109,12 +109,12 @@ void ActionStop() {
 
 void ActionForward() {
   
-  if (getDistance(fDistance) <= isCLOSE || getDistance(lDistance) <= isCLOSE || getDistance(rDistance) <= isCLOSE) {
-    //About to collide
-    PlayBeep();
-    GoStop(50);
-    return;
-  }
+  //if (getDistance(getFrontDistance()) <= isCLOSE || getDistance(getLeftDistance()) <= isCLOSE || getDistance(getRightDistance()) <= isCLOSE) {
+  //  //About to collide
+  //  PlayBeep();
+  //  GoStop(50);
+  //  return;
+  //}
 
   if (getCurrSpeed() == 0 || currentAction != mFORWARD) {
     goForward();
@@ -127,26 +127,26 @@ void ActionForward() {
   //  return;
   //}
 
-  //if (getDistance(rDistance) == isCLOSE && getDistance(fDistance) == isNEAR && getDistance(lDistance) == isNEAR) {
+  //if (getDistance(getRightDistance()) == isCLOSE && getDistance(getFrontDistance()) == isNEAR && getDistance(getLeftDistance()) == isNEAR) {
   //  goLeft(2);
-  //} else if (getDistance(rDistance) == isCLOSE && getDistance(fDistance) == isNEAR && getDistance(lDistance) == isNEAR) {
+  //} else if (getDistance(getRightDistance()) == isCLOSE && getDistance(getFrontDistance()) == isNEAR && getDistance(getLeftDistance()) == isNEAR) {
   //  goRight(2);
   //}
 
       
-  //if (getDistance(fDistance) >= isFAR) {
+  //if (getDistance(getFrontDistance()) >= isFAR) {
   //  //No objects immediately ahead
   //  if (getCurrSpeed() < MAX_SPEED) {
   //    goFaster();
   //    waitTimer = 100;  
   //  } 
-  //} else if (getDistance(fDistance) <= isMEDIUM) {
+  //} else if (getDistance(getFrontDistance()) <= isMEDIUM) {
   //  //Object close
   //  if (getCurrSpeed() > 2) {
   //    goSlower();
   //    waitTimer = 20;
   //  }
-  //} else if (getDistance(fDistance) <= isNEAR) {
+  //} else if (getDistance(getFrontDistance()) <= isNEAR) {
   //  //Object very close
   //  if (getCurrSpeed() > 1) {
   //    goSlower();
@@ -160,13 +160,13 @@ void ActionSpinLeft() {
     spinLeft(3);
     spinning = true;
   }
-  if (getDistance(fDistance) == isTOUCHING && getDistance(bDistance) == isTOUCHING) {
-    //Both front and back are covered
-    GoOff();
-    PlaySwoopDown();
-    SPrintln("OFF");
-  }
-  //if (getDistance(fDistance) >= isNEAR && getDistance(rDistance) >= isNEAR && getDistance(lDistance) >= isNEAR) {
+  //if (getDistance(getFrontDistance()) == isTOUCHING && getDistance(getBackDistance()) == isTOUCHING) {
+  //  //Both front and back are covered
+  //  GoOff();
+  //  PlaySwoopDown();
+  //  SPrintln("OFF");
+  //}
+  //if (getDistance(getFrontDistance()) >= isNEAR && getDistance(getRightDistance()) >= isNEAR && getDistance(getLeftDistance()) >= isNEAR) {
   //  spinning = false;
   //  GoStop(25);
   //}
@@ -178,16 +178,30 @@ void ActionSpinRight() {
     spinRight(3);
     spinning = true;
   }
-  if (getDistance(fDistance) == isTOUCHING && getDistance(bDistance) == isTOUCHING) {
-    //Both front and back are covered
-    GoOff();
-    PlaySwoopDown();
-    SPrintln("OFF");
-  }
-  //if (getDistance(fDistance) >= isNEAR && getDistance(rDistance) >= isNEAR && getDistance(lDistance) >= isNEAR) {
+  //if (getDistance(getFrontDistance()) == isTOUCHING && getDistance(getBackDistance()) == isTOUCHING) {
+  //  //Both front and back are covered
+  //  GoOff();
+  //  PlaySwoopDown();
+  //  SPrintln("OFF");
+  //}
+  //if (getDistance(getFrontDistance()) >= isNEAR && getDistance(getRightDistance()) >= isNEAR && getDistance(getLeftDistance()) >= isNEAR) {
   //  spinning = false;
   //  GoStop(25);
   //}  
+}
+
+void ActionTurnLeft() {
+  if (getCurrSpeed() <= 0) {
+    goForward();
+  }
+  goLeft(1);
+}
+
+void ActionTurnRight() {
+  if (getCurrSpeed() <= 0) {
+    goForward();
+  }
+  goRight(1);
 }
 
 void ActionReverse() {
@@ -196,28 +210,28 @@ void ActionReverse() {
     goReverse();
   }
   
-  if (getDistance(fDistance) == isTOUCHING && getDistance(bDistance) == isTOUCHING) {
-    //Both front and back are covered
-    GoOff();
-    PlaySwoopDown();
-    SPrintln("OFF");
-  }
+  //if (getDistance(getFrontDistance()) == isTOUCHING && getDistance(getBackDistance()) == isTOUCHING) {
+  //  //Both front and back are covered
+  //  GoOff();
+  //  PlaySwoopDown();
+  //  SPrintln("OFF");
+  //}
 
-  if (getDistance(bDistance) <= isCLOSE) {
-    GoStop(30);
-  }
+  //if (getDistance(getBackDistance()) <= isCLOSE) {
+  //  GoStop(30);
+  //}
   
   //if (waitTimer > 0) {
   //  waitTimer--;
   //  return;
   //}
       
-  //if (getDistance(bDistance) <= isCLOSE) {
+  //if (getDistance(getBackDistance()) <= isCLOSE) {
   //  GoStop(30);
-  //} else if (getDistance(fDistance) >= isMEDIUM) {
-  //  if (lDistance >= rDistance) 
+  //} else if (getDistance(getFrontDistance()) >= isMEDIUM) {
+  //  if (getLeftDistance() >= getRightDistance()) 
   //    GoSpinLeft();
-  //  else if (rDistance > lDistance)
+  //  else if (getRightDistance() > getLeftDistance())
   //    GoSpinRight(); 
   //} else if (getCurrSpeed() > -2 && getCurrSpeed() > MIN_SPEED) {
   //  goFaster();
@@ -225,24 +239,36 @@ void ActionReverse() {
   //}
 }
 
+void ActionReverseLeft() {
+  if (getCurrSpeed() >= 0) {
+    goReverse();
+  }
+  goLeft(1);
+}
 
+void ActionReverseRight() {
+  if (getCurrSpeed() >= 0) {
+    goReverse();
+  }
+  goRight(1);
+}
 
 void MotorsTick() {
   //SPrint(currentAction);
   //SPrint(" ");
   //SPrintln(getCurrSpeed());
 
-  if (getDistance(fDistance) > isNOSIGNAL)
-    fDistance = -1; //(rDistance + lDistance);// 2;
+  //if (getDistance(getFrontDistance()) > isNOSIGNAL)
+  //  getFrontDistance() = -1; //(getRightDistance() + getLeftDistance());// 2;
 
-  if (getDistance(rDistance) > isNOSIGNAL)
-    rDistance = -1; //(fDistance + lDistance);// 2;
+  //if (getDistance(getRightDistance()) > isNOSIGNAL)
+  //  getRightDistance() = -1; //(getFrontDistance() + getLeftDistance());// 2;
 
-  if (getDistance(lDistance) > dNOSIGNAL)
-    lDistance = -1; //(rDistance + fDistance);// 2;
+  //if (getDistance(getLeftDistance()) > dNOSIGNAL)
+  //  getLeftDistance() = -1; //(getRightDistance() + getFrontDistance());// 2;
 
-  if (getDistance(bDistance) > dNOSIGNAL)
-    bDistance = -1;
+  //if (getDistance(getBackDistance()) > dNOSIGNAL)
+  //  getBackDistance() = -1;
     
   switch (currentAction) {
     case mOFF:
@@ -259,6 +285,18 @@ void MotorsTick() {
       break;
     case mREVERSING:
       ActionReverse();
+      break;
+    case mTURNINGLEFT:
+      ActionTurnLeft();
+      break;
+    case mTURNINGRIGHT:
+      ActionTurnRight();
+      break;
+    case mREVERSINGLEFT:
+      ActionReverseLeft();
+      break;
+    case mREVERSINGRIGHT:
+      ActionReverseRight();
       break;
     case mSTOP:
       //SPrintln("Stopping!");
@@ -288,6 +326,18 @@ char* getCurrentAction() {
     case mREVERSING:
       return "Reverse";
       break;
+    case mTURNINGLEFT:
+      return "TurnLeft";
+      break;
+    case mTURNINGRIGHT:
+      return "TurnRight";
+      break;
+    case mREVERSINGLEFT:
+      return "ReverseLeft";
+      break;
+    case mREVERSINGRIGHT:
+      return "ReverseRight";
+      break;
     case mSTOP:
       return "Stop";
       break;
@@ -306,6 +356,14 @@ void SetCurrentAction(const char* command) {
       GoSpinRight();
   else if (strcmp(command, "Reverse")==0) 
       GoReverse();
+  else if (strcmp(command, "TurnLeft")==0)
+      GoTurnLeft();
+  else if (strcmp(command, "TurnRight")==0)
+      GoTurnRight();
+  else if (strcmp(command, "ReverseLeft")==0) 
+      GoReverseLeft();
+  else if (strcmp(command, "ReverseRight")==0) 
+      GoReverseRight();
   else if (strcmp(command, "Stop")==0) 
       GoStop();
   else
@@ -324,8 +382,23 @@ void SetCurrentAction(String command) {
       GoSpinRight();
   else if (command.equals("Reverse")) 
       GoReverse();
+  else if (command.equals("TurnLeft"))
+      GoTurnLeft();
+  else if (command.equals("TurnRight"))
+      GoTurnRight();
+  else if (command.equals("ReverseLeft")) 
+      GoReverseLeft();
+  else if (command.equals("ReverseRight")) 
+      GoReverseRight();
   else if (command.equals("Stop"))
       GoStop();
+  else if (command.equals("GoFaster")) 
+      goFaster();
+  else if (command.equals("GoSlower")) {
+      goSlower();
+      if (getCurrSpeed() == 0)
+        GoStop();    
+  }
   else
       GoStop();
 }
@@ -353,4 +426,24 @@ void GoSpinRight() {
 void GoReverse() {
   SPrintln("ActionReverse");
   currentAction = mREVERSING;
+}
+
+void GoTurnLeft() {
+  SPrintln("ActionTurnLeft");
+  currentAction = mTURNINGLEFT;
+}
+
+void GoTurnRight() {
+  SPrintln("ActionTurnRight");
+  currentAction = mTURNINGRIGHT;
+}
+
+void GoReverseLeft() {
+  SPrintln("ActionReverseLeft");
+  currentAction = mREVERSINGLEFT;
+}
+
+void GoReverseRight() {
+  SPrintln("ActionReverseRight");
+  currentAction = mREVERSINGRIGHT;
 }
