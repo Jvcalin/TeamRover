@@ -36,7 +36,7 @@ class Rover:
         #self.motion.readSensors()
 
         #set up the trigger manager
-        self.triggerFile = "../triggers.txt"
+        self.triggerFile = "triggers.txt"
         self.triggerFileSize = os.path.getsize(self.triggerFile)
         self.BuildTriggers()
 
@@ -130,14 +130,14 @@ class Rover:
             for s in t.shape.sections:
                 sections.append({"size":s.size, "slope":s.slope, "average":s.average, "error":s.error})
             arrayTriggerRecords.append({"name":t.name,"sensor":t.sensor,"shape":sections})
-        f = open(self.triggerFile, "wt")
+        f = open("new_" + self.triggerFile, "wt")
         f.write(json.dumps(arrayTriggerRecords))
         f.close()
 
 
-# r = Rover()
+r = Rover()
 # r.SaveTriggers()
-
+r.BuildTriggers()
 
 
 
