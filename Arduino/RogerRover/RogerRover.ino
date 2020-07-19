@@ -28,14 +28,14 @@
 //32/A7 - OLED Button B
 //14/A6 - OLED Button C
 
-//A0/DAC2 - piezo buzzer
+//A0/DAC2
 //A1/DAC1
 //A2/34
 //A3/39
 //A4/36
 //A5/4
-//SCK/5
-//MOSI/18
+//SCK/5 - seesaw interrupt
+//MOSI/18 - piezo buzzer
 //MISO/19 - purple- ultrasonic back echo
 //RX/16 - gray - ultrasonic right echo
 //TX/17 - white - ultrasonic front echo
@@ -60,6 +60,7 @@
 //5
 //6
 //7
+//8 0 interrupt
 // Seesaw 2
 //GPIO/Neopixel
 //9  
@@ -81,6 +82,7 @@
 
 long timer = 0;
 long timer1 = 50;
+long sectimer = 0;
 
 int redLedState = HIGH;
 
@@ -102,7 +104,7 @@ void setup() {
   delay(1000);
   SetupMotors();
   delay(1000);
-  //SetupSounds();
+  SetupSounds();
   delay(1000);
   //SetupServos();
   delay(1000);
@@ -139,6 +141,12 @@ void loop() {
     digitalWrite(redLed, redLedState);
 
     WiFiTick();  
+  }
+
+  //this fires every second
+  if ((millis() - sectimer) > 1000) {
+    sectimer = millis();
+    MQTTPublishSensors(); 
   }
 
   MotorsTick();

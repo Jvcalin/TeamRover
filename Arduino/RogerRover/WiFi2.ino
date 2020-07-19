@@ -6,7 +6,7 @@
 #define BEEP_FEED "roger/cmd/feather/beep"
 #define MOTOR_FEED "roger/cmd/feather/motor"
 #define SERVO_FEED "roger/cmd/feather/servo"
-#define BASE_TOPIC_PATH "roger/sensors/feather/"
+#define BASE_TOPIC_PATH "roger/sensors/feather"
 
 
 EspMQTTClient client(
@@ -63,16 +63,16 @@ void MQTTPublishStatus(String statusmsg) {
 }
 
 void MQTTPublish(const char* topic, char* message) {
-  SPrintln(topic);
-  SPrintln(message);
-  SPrintln("Publishing!");
+  //SPrintln(topic);
+  //SPrintln(message);
+  //SPrintln("Publishing!");
   client.publish(topic, message);
 }
 
 void MQTTPublish(String topic, String message) {
-  SPrintln(topic);
-  SPrintln(message);
-  SPrintln("Publishing!");
+  //SPrintln(topic);
+  //SPrintln(message);
+  //SPrintln("Publishing!");
   client.publish(topic, message);
 }
 
@@ -99,8 +99,8 @@ void MQTTPublishSensors() {
   serializeJsonPretty(payload, sPayload);
   cPayload = &sPayload[0u];
 
-  Serial.println(sPayload);  //we don't want to go to oled or mqtt
-  MQTTPublish(BASE_TOPIC_PATH "values", cPayload);
+  //Serial.println(sPayload);  //we don't want to go to oled or mqtt
+  MQTTPublish(BASE_TOPIC_PATH, cPayload);
     
   //MQTTPublish(BASE_TOPIC_PATH "proxf", String(getFrontDistance()));
   //MQTTPublish(BASE_TOPIC_PATH "proxb", String(getBackDistance()));

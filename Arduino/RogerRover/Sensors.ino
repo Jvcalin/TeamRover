@@ -12,18 +12,18 @@
 //#define bEchoPin 15
 
 #define fEchoPin 17  //ESP32 GPIOs
-#define rEchoPin 16
-#define lEchoPin 21
+#define rEchoPin 21
+#define lEchoPin 16
 #define bEchoPin 19
 
 #define fTrigPin 11  //Seesaw GPIOs
-#define rTrigPin 14  
-#define lTrigPin 10  
+#define rTrigPin 10  
+#define lTrigPin 14  
 #define bTrigPin 15 
 
 #define esp32BattPin A13
 
-#define vibrationPin 0
+#define vibrationPin A5
 //#define ledPin 9
 //#define opSensorPin A0 //Optical Sensor
 #define SEESAW_ADDRESS2 (0x4A)
@@ -86,7 +86,7 @@ void SetupSensors() {
     // To use a slightly lower 32V, 1A range (higher precision on amps):
     //ina219.setCalibration_32V_1A();
     // Or to use a lower 16V, 400mA range (higher precision on volts and amps):
-    //ina219.setCalibration_16V_400mA();
+    ina219.setCalibration_16V_400mA();
 
 }
 
@@ -189,7 +189,7 @@ int ultrasonicSensorDetect(int trigPin, int echoPin) {
 void KnockOccurred(int value) {
   SPrint("Vibration: ");
   SPrintln(value);
-  PlayDeepBeep();
+  PlaySwoopDown();
   if (currentAction == 0) 
     currentAction = 1;
 }
@@ -233,6 +233,6 @@ The shunt voltage is the voltage drop across the shunt resistor that is in serie
 }
 
 float readESP32BatterySensor() {
-  return analogRead(esp32BattPin);
+  return ((float)analogRead(esp32BattPin))/1000;
 }
 //Private Functions
