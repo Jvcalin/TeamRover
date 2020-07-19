@@ -4,7 +4,7 @@
 from pathlib import Path
 import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))  #Make common library available
-
+#sys.path.append(str(Path(__file__)))
 
 import common.mqttService as mqtt
 import common.triggers as triggers
@@ -30,8 +30,8 @@ class Rover:
 
         self.motion = matrix.Motion()
         self.leds = matrix.LEDArray()
-        self.timers = [50,25]   #initial values - they count to 0
-        self.timerSizes = [50,25]  #size of timer
+        self.timers = [50,2500]   #initial values - they count to 0
+        self.timerSizes = [50,2500]  #size of timer
 
         #self.motion.readSensors()
 

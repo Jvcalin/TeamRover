@@ -21,7 +21,7 @@ class RoverMqtt:
         for s in subscriptions:
             self.thisMqtt.subscribe(s.topic, 2)
         self.thisMqtt.loop_start()
-        self.thisMqtt.publish("roger/status", self.name + " starting", 2, True)
+        self.thisMqtt.publish(self.name + "/status", self.name + " starting", 2, True)
 
     def __del__(self):
         # body of destructor
@@ -144,3 +144,12 @@ this.closemqtt()
 #roger/event/me/tipright
 #roger/event/me/brake
 #roger/event/me/bump
+
+
+#LOGGING
+#patty/telegraf/cmd
+#patty/telegraf/sensor
+#patty/telegraf/status
+
+#InfluxDb Format:
+#weather location="us",sensor="temp" temperature=78.1,humidity=23.1,description="wet",rain=true 

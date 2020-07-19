@@ -41,7 +41,7 @@ class Motion:
         self.sensors["orientation"].push(self.getOrientationAngle(imu.yaw))
 
     def getOrientationAngle(self, val):
-        return val / 2 * pi * 360  #TODO: calculate angle from here
+        return val * 180 / pi  
 
     def publishSensors(self, mqtt):
         content = json.dumps(self.serializeSensors())

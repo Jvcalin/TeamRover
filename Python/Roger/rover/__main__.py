@@ -16,7 +16,7 @@ while True:
     #_triggers.check()
     if roger.tick():
         break
-    time.sleep(0.5)
+    time.sleep(0.02)
 
 #check inbox for messages
 #readings
