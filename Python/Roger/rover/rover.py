@@ -36,7 +36,7 @@ class Rover:
         #self.motion.readSensors()
 
         #set up the trigger manager
-        self.triggerFile = "../triggers.txt"
+        self.triggerFile = "triggers.txt"
         self.triggerFileSize = os.path.getsize(self.triggerFile)
         self.BuildTriggers()
 
