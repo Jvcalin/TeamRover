@@ -10,13 +10,13 @@ roger = rvr.Rover()
 
 
 while True:
+    if roger.tick():
+        break
+    time.sleep(0.02)
     #roger.readSensors()
     #roger.checkEvents()
     #_mqtt.checkEvents()
     #_triggers.check()
-    if roger.tick():
-        break
-    time.sleep(0.02)
 
 #check inbox for messages
 #readings

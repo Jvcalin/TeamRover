@@ -1,6 +1,7 @@
-from pathlib import Path
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent))  #Make common library available
+if __name__ == '__main__':
+    from pathlib import Path
+    import sys
+    sys.path.append(str(Path(__file__).parent.parent.parent))  #Make common library available
 
 from matrix_lite import led, sensors
 from common import rovercollections as collections

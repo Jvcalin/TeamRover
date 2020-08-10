@@ -1,6 +1,12 @@
-from common import mycollections as coll
+if __name__ == '__main__':
+    from pathlib import Path
+    import sys
 
-_nodesize = 100
+    sys.path.append(str(Path(__file__).parent.parent.parent))  # Make common library available
+
+from common import rovercollections as coll
+
+node_size = 100
 
 
 class ProximityNode:
@@ -16,18 +22,19 @@ class ProximityNode:
 
 
 
-class ProximityArray(coll.CircularArray):
+class ProximityArray():
     #Magnetic north is at 0
     #Orientation is which way the rover is pointing 
     def __init__(self):
-        coll.CircularArray.__init__(self, 360, self.factory)
+        self.array = coll.CircularArray(360, self.factory)
         self.orientation = 0
 
     def factory(self):
-        return ProximityNode(_nodesize)
+        return ProximityNode(node_size)
 
-    def register(self, angle, value):
+    def sense(self, angle, value):
         #angle is with respect to orientation
+        #todo: affect more than one node based on value
         item = self.GetItem(self.orientation, angle)
         item.push(value)
 

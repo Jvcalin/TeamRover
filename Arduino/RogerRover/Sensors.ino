@@ -23,7 +23,7 @@
 
 #define esp32BattPin A13
 
-#define vibrationPin A5
+#define vibrationPin 4
 //#define ledPin 9
 //#define opSensorPin A0 //Optical Sensor
 #define SEESAW_ADDRESS2 (0x4A)
@@ -65,6 +65,8 @@ void SetupSensors() {
     //}
     //  else SPrintln("seesaw2 started");  
 
+    attachInterrupt(digitalPinToInterrupt(vibrationPin), SenseVibration, RISING);
+
         
     //pinMode(opSensorPin, INPUT);
     ss1.pinMode(fTrigPin, OUTPUT);
@@ -94,6 +96,7 @@ void SetupSensors() {
 
 void SensorsTick() {
   ultrasonicSensorDetectAll();
+  readVibrationSensor();
 }
 
 //bool OpSensorDetect() {
@@ -194,12 +197,27 @@ void KnockOccurred(int value) {
     currentAction = 1;
 }
 
+long vibrationCount = 0;
 void SenseVibration() {
-  int value = analogRead(vibrationPin);
-  if (value > 950)
-    KnockOccurred(value);
+  vibrationCount++;
 }
 
+long vibrationSum = 0;
+void readVibrationSensor() {
+  if (vibrationCount > 0) {
+    SPrint("Vibration: ");
+    SPrintln(vibrationCount);
+    vibrationSum += vibrationCount;
+    vibrationCount = 0;    
+  }
+
+  if (vibrationCount == 0 && vibrationSum > 0) {
+    if (vibrationSum > 0) { //Vibration threshhold
+      MQTTPublishEvent("bump", (String)vibrationSum);  
+    }
+    vibrationSum = 0;
+  }
+}
 
 float readBatterySensor() {
   float shuntvoltage = 0;

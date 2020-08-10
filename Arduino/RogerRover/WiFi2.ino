@@ -7,6 +7,7 @@
 #define MOTOR_FEED "roger/cmd/feather/motor"
 #define SERVO_FEED "roger/cmd/feather/servo"
 #define BASE_TOPIC_PATH "roger/sensors/feather"
+#define BASE_EVENT_PATH "roger/events/feather/"
 
 
 EspMQTTClient client(
@@ -74,6 +75,10 @@ void MQTTPublish(String topic, String message) {
   //SPrintln(message);
   //SPrintln("Publishing!");
   client.publish(topic, message);
+}
+
+void MQTTPublishEvent(String event, String message) {
+  MQTTPublish(BASE_EVENT_PATH + event, message);
 }
 
 void MQTTPublishSensors() {
