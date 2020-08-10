@@ -1,1 +1,26 @@
-[{"name": "forward", "sensor": "xAccel", "shape": [{"size": 10, "slope": 1.5, "average": 50}, {"size": 15, "slope": -1.5, "average": 50}, {"size": 10, "slope": 0, "average": 0}]}]
+[
+    {
+        "name":"forward",
+        "sensor":"xAccel",
+        "shape": [
+            {
+                "size":10,
+                "slope":1.5,
+                "average":50,
+                "error":0.25    
+            },
+            {
+                "size":15,
+                "slope":-1.5,
+                "average":50,
+                "error":0.25    
+            },
+            {
+                "size":10,
+                "slope":0,
+                "average":0,
+                "error":0.25    
+            }
+        ]
+    }
+]
