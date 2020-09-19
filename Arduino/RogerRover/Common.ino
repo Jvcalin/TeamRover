@@ -70,10 +70,10 @@ void SPrintln(const String& value) {
   if (OLED) {
     OLEDPrintln(value);
   }
-  //if (MQTT) {
-  //  AddToCurrentMessage(String(value));
-  //  MQTTPublishStatus(currentmessage);
-  //}
+  if (MQTT) {
+    AddToCurrentMessage(String(value));
+    MQTTPublishStatus(currentmessage);
+  }
 }
 
 void SPrintln(const char* str) {
@@ -83,10 +83,10 @@ void SPrintln(const char* str) {
   if (OLED) {
     OLEDPrintln(str);
   }
-  //if (MQTT) {
-  //  AddToCurrentMessage(String(str));
-  //  MQTTPublishStatus(currentmessage);
-  //}
+  if (MQTT) {
+    AddToCurrentMessage(String(str));
+    MQTTPublishStatus(currentmessage);
+  }
 }
 
 void SPrintln(int value) {

@@ -82,7 +82,8 @@
 
 long timer = 0;
 long timer1 = 50;
-long sectimer = 0;
+long proxtimer = 0;
+long proxinterval = 1000;
 
 int redLedState = HIGH;
 
@@ -106,7 +107,7 @@ void setup() {
   delay(1000);
   SetupSounds();
   delay(1000);
-  //SetupServos();
+  SetupServos();
   delay(1000);
   //SetupWiFi();
   delay(1000);
@@ -117,8 +118,8 @@ SPrintln("Starting Program");
 //PlayTone();
 //PlayDuntDuntDunt();
 //delay(1000);
-//PlaySwoopUp();
-//delay(1000);
+PlaySwoopUp();
+delay(1000);
 //PlaySwoopDown();
 //delay(2000);
 
@@ -143,15 +144,15 @@ void loop() {
     WiFiTick();  
   }
 
-  //this fires every second
-  if ((millis() - sectimer) > 1000) {
-    sectimer = millis();
+  if ((millis() - proxtimer) > proxinterval) {
+    proxtimer = millis();
     MQTTPublishSensors(); 
+    setProxInterval();
   }
 
   MotorsTick();
   //SenseVibration();
-  //ServoTick();
+  ServoTick();
   delay(10);
    
   long timeElapsed = millis() - startLoop;
@@ -165,7 +166,19 @@ void loop() {
   timer1++;  
 }
 
-
+void setProxInterval() {
+  char* command = getCurrentAction();
+  if (strcmp(command, "Forward")==0 || strcmp(command, "Reverse")==0)
+      proxinterval = 1000 / getCurrSpeed();
+  else if (strcmp(command, "SpinLeft")==0 || strcmp(command, "SpinRight")==0)
+      proxinterval = 200;
+  else if (strcmp(command, "TurnLeft")==0 || strcmp(command, "TurnRight")==0)
+      proxinterval = 800 / getCurrSpeed();
+  else if (strcmp(command, "ReverseLeft")==0 || strcmp(command, "ReverseRight")==0) 
+      proxinterval = 800 / getCurrSpeed();
+  else
+      proxinterval = 15000;
+}
 
 void testloop() {
   // put your main code here, to run repeatedly:

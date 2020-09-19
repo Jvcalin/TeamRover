@@ -13,7 +13,7 @@
 EspMQTTClient client(
   "Daenerys",
   "jonandpaul",
-  "192.168.1.25",  // MQTT Broker server ip
+  "192.168.86.25",  // MQTT Broker server ip
   "",
   "",
   "RogerFeather",      // Client name that uniquely identify your device
@@ -32,10 +32,10 @@ void onConnectionEstablished() {
     SPrintln(payload);
   });
 
-  //client.subscribe(SERVO_FEED, [] (const String &payload)  {
-  //  servoMessage(payload);
-  //  SPrintln(payload);
-  //});
+  client.subscribe(SERVO_FEED, [] (const String &payload)  {
+    servoMessage(payload);
+    SPrintln(payload);
+  });
 
   client.publish("roger/status/feather", "Feather coming online");
 }
@@ -53,7 +53,23 @@ void motorMessage(String message) {
 }
 
 void servoMessage(String message) {
-  
+  message.trim();
+  message.toLowerCase();
+  int value = 0; 
+  if (message.length() > 0) {
+    value = message.substring(1).toInt();
+    if (message.startsWith("l")) {
+      ServoMoveLeft(value);
+    } else if (message.startsWith("r")) {
+      ServoMoveRight(value);
+    } else if (message.startsWith("u")) {
+      ServoMoveUp(value);
+    } else if (message.startsWith("d")) {
+      ServoMoveDown(value);
+    } else {
+      ResetServos();
+    }
+  }
 }
 
 void MQTTPublishStatus(String statusmsg) {
@@ -95,8 +111,8 @@ void MQTTPublishSensors() {
   payload["proxr"] = getRightDistance();
   payload["motorspeed"] = getCurrSpeed();
   payload["motoraction"] = getCurrentAction();
-  //payload["servohpos"] = getServoHPos();
-  //payload["servovpos"] = getServoVPos());
+  payload["servohpos"] = getServoHPos();
+  payload["servovpos"] = getServoVPos();
   payload["batteryvoltage"] = readBatterySensor();
   payload["esp32voltage"] = readESP32BatterySensor();
 
