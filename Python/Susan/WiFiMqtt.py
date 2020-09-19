@@ -68,6 +68,7 @@ class MyMqtt:
         self.status_feed = "roger/status/#"
         self.motor_cmd_feed = "roger/cmd/feather/motor"
         self.beep_cmd_feed = "roger/cmd/feather/beep"
+        self.servo_cmd_feed = "roger/cmd/feather/servo"
 
         # Connect to WiFi
         self.wifi.connect()
@@ -75,7 +76,7 @@ class MyMqtt:
         # Set up a MiniMQTT Client
         self.mqtt_client = MQTT(
             socket,
-            broker="192.168.1.25",
+            broker="192.168.86.25",
             port=1883,
             network_manager=self.wifi,
         )
