@@ -1,3 +1,5 @@
+import common.shapes as shapes
+
 """
 The Trigger Collection class is a collection of triggers.
 Add and Trigger objects
@@ -17,7 +19,7 @@ class TriggerCollection:
 
     def check(self):
         for f in self.triggers:
-            if (f.check()):
+            if f.check():
                 f.doFunction()
 
     def setAll(self):
@@ -78,6 +80,28 @@ class ArrayTriggerRecord:
         self.name = topicName
         self.sensor = sensorName
         self.shape = shape
+
+
+def SerializeTriggers(localstorage, topic):
+    pass
+
+def DeserializeTriggers(localstorage, topic, doFunction):
+    arrayTriggerRecords = localstorage.items["triggers"]
+    # f.close()
+    triggerlist = []
+    for t in arrayTriggerRecords:
+        sections = []
+        for s in t["shape"]:
+            ss = shapes.GraphSection(s["size"], s["slope"], s["average"], s["error"])
+            sections.append(ss)
+        shape = shapes.GraphShape(sections)
+        tt = ArrayTrigger(t["name"],
+                          t["sensor"],
+                          self.motion.sensors[t["sensor"]],
+                          shape,
+                          lambda: doFunction)
+        triggerlist.append(tt)
+    return triggerlist
 
 """
 

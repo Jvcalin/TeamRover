@@ -1,45 +1,51 @@
-#sys.path.append("C:\Users\jvcal\Google Drive\IoT_Boards\TeamRover")
-#from ...rogercommon import mqttService as mqtt
-#from ...Python import Roger
+# sys.path.append("C:\Users\jvcal\Google Drive\IoT_Boards\TeamRover")
+# from ...rogercommon import mqttService as mqtt
+# from ...Python import Roger
 
 if __name__ == '__main__':
     from pathlib import Path
     import sys
-    sys.path.append(str(Path(__file__).parent.parent.parent))  #Make common library available
-    #sys.path.append(str(Path(__file__)))
+
+    sys.path.append(str(Path(__file__).parent.parent.parent))  # Make common library available
+    # sys.path.append(str(Path(__file__)))
 
 import common.mqttService as mqtt
 import common.triggers as triggers
 import common.shapes as shapes
+import common.localstorage as storage
 # import proximity as Prox
 # import grid as Grid
-import matrixcreator as matrix # import Motion, LEDArray, Sensors, Microphones
+import matrixcreator as matrix  # import Motion, LEDArray, Sensors, Microphones
 # import featherhuzzah as Feather
 # from ...common import triggers as trig
 import common.rovercollections as Coll
 import json
 import os
 
+
 class Rover:
-    
+
     def __init__(self):
         self.stop = False
-        #initialize mqtt
-        mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix/led", lambda x : self.LEDCmd(x)), 
-                    mqtt.RoverMqttSubscription("roger/cmd/matrix/triggers/add", lambda x : self.AddTriggerCmd(x)), 
-                    mqtt.RoverMqttSubscription("roger/cmd/matrix", lambda x : self.MatrixCmd(x))] 
+
+        self.storage = storage.LocalStorage("localstorage.txt", str(Path(__file__)))
+
+        # initialize mqtt
+        mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix/led", lambda x: self.LEDCmd(x)),
+                    mqtt.RoverMqttSubscription("roger/cmd/matrix/triggers/add", lambda x: self.AddTriggerCmd(x)),
+                    mqtt.RoverMqttSubscription("roger/cmd/matrix", lambda x: self.MatrixCmd(x))]
         self.mqtt = mqtt.RoverMqtt("Roger_Rover_Loop", mqttSubs)
 
         self.motion = matrix.Motion()
         self.leds = matrix.LEDArray()
-        self.timers = [50,2500]   #initial values - they count to 0
-        self.timerSizes = [50,2500]  #size of timer
+        self.timers = [50, 2500]  # initial values - they count to 0
+        self.timerSizes = [50, 2500]  # size of timer
 
-        #self.motion.readSensors()
+        # self.motion.readSensors()
 
-        #set up the trigger manager
-        self.triggerFile = "triggers.txt"
-        self.triggerFileSize = os.path.getsize(self.triggerFile)
+        # set up the trigger manager
+        # self.triggerFile = "triggers.txt"
+        # self.triggerFileSize = os.path.getsize(self.triggerFile)
         self.BuildTriggers()
 
     def __del__(self):
@@ -53,7 +59,7 @@ class Rover:
 
         if self.checkTimer(1):
             self.triggers.check()
-       
+
         return self.stop
 
     def checkTimer(self, index):
@@ -74,14 +80,15 @@ class Rover:
         t = json.loads(cmdText)
         sections = []
         for s in t["shape"]:
-            ss = shapes.GraphSection(s["size"],s["slope"],s["average"],s["error"])
+            ss = shapes.GraphSection(s["size"], s["slope"], s["average"], s["error"])
             sections.append(ss)
         shape = shapes.GraphShape(sections)
         tt = triggers.ArrayTrigger(t["name"],
-            t["sensor"], 
-            self.motion.sensors[t["sensor"]], 
-            shape,
-            lambda : self.PublishEvent(topic + t["name"],self.motion.sensors[t["sensor"]].getAvg()))
+                                   t["sensor"],
+                                   self.motion.sensors[t["sensor"]],
+                                   shape,
+                                   lambda: self.PublishEvent(topic + t["name"],
+                                                             self.motion.sensors[t["sensor"]].getAvg()))
         self.triggers.add(tt)
         self.SaveTriggers()
 
@@ -106,81 +113,81 @@ class Rover:
 
     def CreateTriggers(self):
         topic = "roger/event/matrix/"
-        self.triggerFileSize = os.path.getsize(self.triggerFile)
-        f = open(self.triggerFile, "rt")
-        arrayTriggerRecords = json.loads(f.read())
-        f.close()
+        # self.triggerFileSize = os.path.getsize(self.triggerFile)
+        # f = open(self.triggerFile, "rt")
+        arrayTriggerRecords = self.storage.items["triggers"]
+        # f.close()
         triggerlist = []
         for t in arrayTriggerRecords:
             sections = []
             for s in t["shape"]:
-                ss = shapes.GraphSection(s["size"],s["slope"],s["average"],s["error"])
+                ss = shapes.GraphSection(s["size"], s["slope"], s["average"], s["error"])
                 sections.append(ss)
             shape = shapes.GraphShape(sections)
             tt = triggers.ArrayTrigger(t["name"],
-                t["sensor"], 
-                self.motion.sensors[t["sensor"]], 
-                shape,
-                lambda : self.PublishEvent(topic + t["name"],self.motion.sensors[t["sensor"]].getAvg()))
+                                       t["sensor"],
+                                       self.motion.sensors[t["sensor"]],
+                                       shape,
+                                       lambda: self.PublishEvent(topic + t["name"],
+                                                                 self.motion.sensors[t["sensor"]].getAvg()))
             triggerlist.append(tt)
         return triggerlist
 
     def SaveTriggers(self):
-        arrayTriggerRecords = []
+        arraytriggerrecords = []
         for t in self.triggers.triggers:
             sections = []
             for s in t.shape.sections:
-                sections.append({"size":s.size, "slope":s.slope, "average":s.average, "error":s.error})
-            arrayTriggerRecords.append({"name":t.name,"sensor":t.sensor,"shape":sections})
-        f = open("new_" + self.triggerFile, "wt")
-        f.write(json.dumps(arrayTriggerRecords))
-        f.close()
+                sections.append({"size": s.size, "slope": s.slope, "average": s.average, "error": s.error})
+            arraytriggerrecords.append({"name": t.name, "sensor": t.sensor, "shape": sections})
+        # f = open("new_" + self.triggerFile, "wt")
+        # f.write(json.dumps(arrayTriggerRecords))
+        # f.close()
+        self.storage.items["triggers"] = arraytriggerrecords
 
 
 r = Rover()
 # r.SaveTriggers()
 r.BuildTriggers()
 
+#    #go forward
+#     triggerlist.append(triggers.Trigger(self.motion.sensors["xAccel"],
+#                        lambda x : x.getTrend(10) > 0,
+#                        lambda : self.PublishEvent(topic + "forward", self.motion.sensors["xAccel"].getTrend(10))))
+
+# self.currentPos = (0,0) #x,y
+# self.prox = Prox.ProximityArray()  #each point in array is a distance measured by the sensors
+# self.space = Grid.Space2D()  #the map on which the rover is travelling
+# self.proxsensors = Feather.ProxSensors
+# self.prox.orientation = self.motion.getOrientationAngle  #the way the rover is facing in relation to mag north 0 (degrees)
+# self.did = Events.Did()
+# self.sense = Events.Sense()
+# self.events = {
+#     "forward": RogerEvent(self.did.goforward, self.sense.Forward),
+#     "spinleft": RogerEvent(self.did.spinleft, self.sense.spinleft),
+#     "spinright": RogerEvent(self.did.spinright, self.sense.spinleft),
+#     "backward": RogerEvent(self.did.gobackward, self.sense.Backward),
+#     "tipforward": RogerEvent(self.did.tipforward, self.sense.tipforward),
+#     "tipback": RogerEvent(self.did.TipBack, self.sense.TipBack),
+#     "tipleft": RogerEvent(self.did.tipleft, self.sense.tipleft),
+#     "tipright": RogerEvent(self.did.tipright, self.sense.Right),
+#     "brake": RogerEvent(self.did.brake, self.sense.brake),
+#     "bump": RogerEvent(self.did.bump, self.sense.bump)
+#     }
+
+# def readSensors(self):
+#     for s in self.proxsensors:
+#         d = s.read()
+#         self.prox.register(s.angle, v)
+#         self.space.addVector(self.currentPos, self.prox.orientation + s.angle, d)
+#     self.motion.read()
+#     self.leds.applyProxArray(self.prox.GetArray(self.prox.orientation))
 
 
-    #    #go forward
-    #     triggerlist.append(triggers.Trigger(self.motion.sensors["xAccel"],
-    #                        lambda x : x.getTrend(10) > 0,
-    #                        lambda : self.PublishEvent(topic + "forward", self.motion.sensors["xAccel"].getTrend(10))))
-
-        # self.currentPos = (0,0) #x,y
-        # self.prox = Prox.ProximityArray()  #each point in array is a distance measured by the sensors
-        # self.space = Grid.Space2D()  #the map on which the rover is travelling
-        # self.proxsensors = Feather.ProxSensors
-        # self.prox.orientation = self.motion.getOrientationAngle  #the way the rover is facing in relation to mag north 0 (degrees)
-        # self.did = Events.Did()
-        # self.sense = Events.Sense()
-        # self.events = {
-        #     "forward": RogerEvent(self.did.goforward, self.sense.Forward),
-        #     "spinleft": RogerEvent(self.did.spinleft, self.sense.spinleft),
-        #     "spinright": RogerEvent(self.did.spinright, self.sense.spinleft),
-        #     "backward": RogerEvent(self.did.gobackward, self.sense.Backward),
-        #     "tipforward": RogerEvent(self.did.tipforward, self.sense.tipforward),
-        #     "tipback": RogerEvent(self.did.TipBack, self.sense.TipBack),
-        #     "tipleft": RogerEvent(self.did.tipleft, self.sense.tipleft),
-        #     "tipright": RogerEvent(self.did.tipright, self.sense.Right),
-        #     "brake": RogerEvent(self.did.brake, self.sense.brake),
-        #     "bump": RogerEvent(self.did.bump, self.sense.bump)
-        #     }
-
-    # def readSensors(self):
-    #     for s in self.proxsensors:
-    #         d = s.read()
-    #         self.prox.register(s.angle, v)
-    #         self.space.addVector(self.currentPos, self.prox.orientation + s.angle, d)
-    #     self.motion.read()
-    #     self.leds.applyProxArray(self.prox.GetArray(self.prox.orientation))
-
-
-    # def checkEvents(self):
-    #     for e in self.events:
-    #         if self.events[e].check():
-    #             self.events[e].trigger()
+# def checkEvents(self):
+#     for e in self.events:
+#         if self.events[e].check():
+#             self.events[e].trigger()
 
 
 # class RoverEvent(Events.EventNotifier):
@@ -195,6 +202,3 @@ r.BuildTriggers()
 #         def trigger(self):
 #             self.notify("1")
 #             self.triggerF()
-
-
-

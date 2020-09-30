@@ -21,10 +21,9 @@ class ProximityNode:
         return self.Distance.getAvg()
 
 
-
-class ProximityArray():
-    #Magnetic north is at 0
-    #Orientation is which way the rover is pointing 
+class ProximityArray:
+    # Magnetic north is at 0
+    # Orientation is which way the rover is pointing
     def __init__(self):
         self.array = coll.CircularArray(360, self.factory)
         self.orientation = 0
@@ -33,16 +32,16 @@ class ProximityArray():
         return ProximityNode(node_size)
 
     def sense(self, angle, value):
-        #angle is with respect to orientation
-        #todo: affect more than one node based on value
-        item = self.GetItem(self.orientation, angle)
+        # angle is with respect to orientation
+        # todo: affect more than one node based on value
+        item = self.array.GetItem(self.orientation, angle)
         item.push(value)
 
-
-
+    def rotate(self, angle):
+        self.orientation += angle
 
 prox = ProximityArray()
-item = prox.GetItem(0,100)
+item = prox.array.GetItem(0, 100)
 item.push(23)
 item.push(33)
 item.push(12)
@@ -75,7 +74,6 @@ print(item.Distance.getMedian())
 print(item.Distance.getVariance())
 print(item.Distance.getPVariance())
 print(item.Distance.getTrend(10))
-
 
 """
 TODO:

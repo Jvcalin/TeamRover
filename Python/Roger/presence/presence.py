@@ -1,40 +1,43 @@
 if __name__ == '__main__':
     from pathlib import Path
     import sys
-    sys.path.append(str(Path(__file__).parent.parent.parent))  #Make common library available
+
+    sys.path.append(str(Path(__file__).parent.parent.parent))  # Make common library available
     # sys.path.append(str(Path(__file__)))
 
-import common.mqttService as mqtt
+
 import proximity as prox
+import presencemqtt as mqtt
+
 
 class Presence:
-    
+
     def __init__(self):
         self.stop = False
-        #initialize mqtt
-        mqttSubs = [mqtt.RoverMqttSubscription("roger/sensors/feather", lambda x : self.getFeatherSensors(x)), 
-                    mqtt.RoverMqttSubscription("roger/sensors/matrix", lambda x : self.getMatrixSensors(x)), 
-                    mqtt.RoverMqttSubscription("roger/events/feather", lambda x : self.getFeatherEvent(x))] 
-        self.mqtt = mqtt.RoverMqtt("Roger_Presence_Loop", mqttSubs)
-
         self.prox = prox.ProximityArray()
+        self.mqtt = mqtt.PresenceMqtt(self)
 
     def __del__(self):
         pass
 
-    def tick(self):      
+    def tick(self):
         return self.stop
 
-    def getFeatherSensors(self, payload):
-        pass
+    def feelProx(self, sensors):
+        # Sensor order: Front, Left, Right, Back
+        self.prox.sense(0, sensors[0])
+        self.prox.sense(315, sensors[1])
+        self.prox.sense(45, sensors[2])
+        self.prox.sense(180, sensors[3])
 
-    def getMatrixSensors(self, payload):
-        pass
-    
-    def getFeatherEvent(self, payload):
-        pass
+    def feelRotate(self, value):
+        # value should be calibrated to translate into angle
+        # this calibration should be refined over time
+        angle = value * 1
+        self.prox.rotate(angle)  # this comes from sensing gyro
 
-    def getMatrixEvent(self, payload):
-        pass
+    def reorient(self, angle):
+        self.prox.orientation = angle  # this comes from sensing magnetic north
 
-    
+
+
