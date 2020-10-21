@@ -26,6 +26,7 @@ class TriggerCollection:
         for f in self.triggers:
             f.setTrigger()
 
+
 """
 A trigger has:
 A reference to the object to observe
@@ -54,7 +55,8 @@ class Trigger:
     def setTrigger(self):
         self.isSet = True
 
-class ArrayTrigger:
+
+class ShapeTrigger:
     def __init__(self, name, sensor, arrayToObserve, shapeToMatch, doWhenMatched):
         self.name = name
         self.sensor = sensor
@@ -65,7 +67,7 @@ class ArrayTrigger:
         self.runOnce = False
 
     def check(self):
-        if self.isSet and self.shape.compare(self.array.get()):
+        if self.isSet and self.shape.compare(self.array):
             if self.runOnce:
                 self.isSet = False
             return True
@@ -75,13 +77,14 @@ class ArrayTrigger:
     def setTrigger(self):
         self.isSet = True
 
-class ArrayTriggerRecord:
+
+class ShapeTriggerRecord:
     def __init__(self, topicName, sensorName, shape):
         self.name = topicName
         self.sensor = sensorName
         self.shape = shape
 
-
+"""
 def SerializeTriggers(localstorage, topic):
     pass
 
@@ -95,7 +98,7 @@ def DeserializeTriggers(localstorage, topic, doFunction):
             ss = shapes.GraphSection(s["size"], s["slope"], s["average"], s["error"])
             sections.append(ss)
         shape = shapes.GraphShape(sections)
-        tt = ArrayTrigger(t["name"],
+        tt = ShapeTrigger(t["name"],
                           t["sensor"],
                           self.motion.sensors[t["sensor"]],
                           shape,
@@ -103,7 +106,7 @@ def DeserializeTriggers(localstorage, topic, doFunction):
         triggerlist.append(tt)
     return triggerlist
 
-"""
+
 
 class SampleObj:
     def __init__(self, val1, val2):

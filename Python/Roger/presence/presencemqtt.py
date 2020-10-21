@@ -6,16 +6,17 @@ if __name__ == '__main__':
 
 import common.mqttService as mqtt
 
+
 class PresenceMqtt:
 
     def __init__(self, parent):
         # initialize mqtt
         mqttSubs = [mqtt.RoverMqttSubscription("roger/sensors/feather", lambda x: self.getFeatherSensors(x)),
                     mqtt.RoverMqttSubscription("roger/sensors/matrix", lambda x: self.getMatrixSensors(x)),
-                    mqtt.RoverMqttSubscription("roger/cmd/presence", lambda x: self.getPresenceCmd(x))]
+                    mqtt.RoverMqttSubscription("roger/cmd/presence/publish", lambda x: self.getPresenceCmd(x))]
         self.mqtt = mqtt.RoverMqtt("Roger_Presence_Loop", mqttSubs)
         self.eventbasetopic = "roger/events"
-        self.structuresbasetopic = "roger/structures/proxarray"
+        self.structuresbasetopic = "roger/presence/proxarray"
         self.parent = parent
 
     def getFeatherSensors(self, payload):
@@ -38,6 +39,6 @@ class PresenceMqtt:
 
     def publishArray(self):
         # for now we send the array oriented to mag north, but later we may use orientation
-        mqtt.publish(self.structuresbasetopic, self.prox.array.GetArray(0))
+        mqtt.publish(self.structuresbasetopic, self.parent.prox.array.GetArray(0))
 
 

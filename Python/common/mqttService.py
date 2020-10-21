@@ -113,6 +113,8 @@ this.closemqtt()
 #roger/cmd/feather/beep => "swoopup"
 #roger/cmd/feather/action => "forward"
 #roger/cmd/feather/servo => "h,v"
+#roger/cmd/presence/publish  -- publish the presence array
+
 ##roger/sensors/feather/proxf
 #roger/sensors/feather/proxb
 #roger/sensors/feather/proxl
@@ -127,6 +129,10 @@ this.closemqtt()
 #roger/sensors/feather/batt
 #roger/sensors/feather/power
 
+#roger/presence/proxarray -- contains the proxarray
+
+
+#Examples
 #roger/cmd/matrix/led/roundinacircle = 3 (times)
 #roger/cmd/matrix/led/rainbow => 3 (times)
 #roger/cmd/matrix/

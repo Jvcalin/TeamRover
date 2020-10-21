@@ -28,12 +28,13 @@ class Rover:
     def __init__(self):
         self.stop = False
 
-        self.storage = storage.LocalStorage("localstorage.txt", str(Path(__file__)))
+        self.storage = storage.LocalStorage("roverstorage.txt", str(Path(__file__)))
 
         # initialize mqtt
         mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix/led", lambda x: self.LEDCmd(x)),
                     mqtt.RoverMqttSubscription("roger/cmd/matrix/triggers/add", lambda x: self.AddTriggerCmd(x)),
-                    mqtt.RoverMqttSubscription("roger/cmd/matrix", lambda x: self.MatrixCmd(x))]
+                    mqtt.RoverMqttSubscription("roger/cmd/matrix", lambda x: self.MatrixCmd(x)),
+                    mqtt.RoverMqttSubscription("roger/presence/proxarray", lambda x: self.leds.applyProxArray(x))]
         self.mqtt = mqtt.RoverMqtt("Roger_Rover_Loop", mqttSubs)
 
         self.motion = matrix.Motion()
@@ -56,6 +57,7 @@ class Rover:
 
         if self.checkTimer(0):
             self.motion.publishSensors(self.mqtt)
+            self.PublishEvent("roger/cmd/presence/publish", "prox")  # tell the presence loop to publish it's latest array
 
         if self.checkTimer(1):
             self.triggers.check()
@@ -83,7 +85,7 @@ class Rover:
             ss = shapes.GraphSection(s["size"], s["slope"], s["average"], s["error"])
             sections.append(ss)
         shape = shapes.GraphShape(sections)
-        tt = triggers.ArrayTrigger(t["name"],
+        tt = triggers.ShapeTrigger(t["name"],
                                    t["sensor"],
                                    self.motion.sensors[t["sensor"]],
                                    shape,
@@ -124,7 +126,7 @@ class Rover:
                 ss = shapes.GraphSection(s["size"], s["slope"], s["average"], s["error"])
                 sections.append(ss)
             shape = shapes.GraphShape(sections)
-            tt = triggers.ArrayTrigger(t["name"],
+            tt = triggers.ShapeTrigger(t["name"],
                                        t["sensor"],
                                        self.motion.sensors[t["sensor"]],
                                        shape,

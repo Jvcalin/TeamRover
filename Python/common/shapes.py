@@ -1,5 +1,6 @@
 import statistics as stat
 
+
 class GraphShape:    
     def __init__(self, sections):
         self.sections = sections
@@ -10,11 +11,16 @@ class GraphShape:
     def compare(self, array):
         i = 0
         for s in self.sections:
-            d = GetSlope(array[i:s.size])
+            d = get_slope(array[i:s.size])
             i += s.size
             if d > (s.slope + s.error) or d < (s.slope - s.error): 
                 return False
-        return True 
+        return True
+
+    @classmethod
+    def createfromserialize(cls, values):
+        gs = cls(values["sections"])
+        return gs
 
 
 
@@ -25,13 +31,17 @@ class GraphSection:
         self.average = average
         self.error = error
 
+    @classmethod
+    def createfromserialize(cls, values):
+        gs = cls(values["size"], values["slope"], values["average"], values["error"])
+        return gs
 
-def GetSlope(array):
-    #array of numbers
+def get_slope(array):
+    # array of numbers
     if len(array) == 0:
         return 0
     deltas = []
-    for x in range(1,len(array)-1):
+    for x in range(1, len(array)-1):
         delta = array[x] - array[x-1]
         deltas.append(delta)
     if len(deltas) == 0:

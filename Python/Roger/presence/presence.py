@@ -16,6 +16,8 @@ class Presence:
         self.stop = False
         self.prox = prox.ProximityArray()
         self.mqtt = mqtt.PresenceMqtt(self)
+        self.timers = [50, 2500]  # initial values - they count to 0
+        self.timerSizes = [50, 2500]  # size of timer
 
     def __del__(self):
         pass

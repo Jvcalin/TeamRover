@@ -79,19 +79,16 @@ class LEDArray:
         command(self.ledarray, arguments)
         
 
-    def applyProxArray(self, ledarray, array):
-        ratio = len(array) / len(ledarray)
-        for i in range(0,len(ledarray)):
+    def applyProxArray(self, array):  # array is an array of integers
+        ratio = len(array) / len(self.ledarray)
+        for i in range(0, len(self.ledarray)):
             low = round(i * ratio)
             high = round((i + 1) * ratio)
             if high > len(array):
                 high = len(array)
-            subarray = []
-            for x in array[low:high]:
-                subarray.append(x.getValue())
-            intensity = round(stat.mean(subarray) / MAXDISTANCE * 255)
-            ledarray[i] = {'r':intensity, 'g':0, 'b':0, 'w':0}  #red
-        led.set(ledarray)
+            intensity = round(stat.mean(array[low:high]) / self.MAXDISTANCE * 255)
+            self.ledarray[i] = {'r':intensity, 'g':0, 'b':0, 'w':0}  #red
+        led.set(self.ledarray)
 
     def applyColor(self, ledarray, color):
         print("Applying color " + color[0])
