@@ -36,6 +36,7 @@ class GraphSection:
         gs = cls(values["size"], values["slope"], values["average"], values["error"])
         return gs
 
+
 def get_slope(array):
     # array of numbers
     if len(array) == 0:

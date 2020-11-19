@@ -12,9 +12,12 @@ class LocalStorage:
         self.items = {}
 
     def load(self):
-        with open(self.fullpath, "rt") as f:
-            self.content = f.read()
-            self.items = ser.fromJSON(self.content)
+        try:
+            with open(self.fullpath, "rt") as f:
+                self.content = f.read()
+                self.items = ser.fromJSON(self.content)
+        except FileNotFoundError:
+            open(self.fullpath, "xt")
 
     def save(self):
         with open(self.fullpath, "wt") as f:

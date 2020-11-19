@@ -29,10 +29,11 @@ class Rover:
         self.stop = False
 
         self.storage = storage.LocalStorage("roverstorage.txt", str(Path(__file__)))
+        self.storage.load()
 
         # initialize mqtt
         mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix/led", lambda x: self.LEDCmd(x)),
-                    mqtt.RoverMqttSubscription("roger/cmd/matrix/triggers/add", lambda x: self.AddTriggerCmd(x)),
+                    # mqtt.RoverMqttSubscription("roger/cmd/matrix/triggers/add", lambda x: self.AddTriggerCmd(x)),
                     mqtt.RoverMqttSubscription("roger/cmd/matrix", lambda x: self.MatrixCmd(x)),
                     mqtt.RoverMqttSubscription("roger/presence/proxarray", lambda x: self.leds.applyProxArray(x))]
         self.mqtt = mqtt.RoverMqtt("Roger_Rover_Loop", mqttSubs)
@@ -47,10 +48,11 @@ class Rover:
         # set up the trigger manager
         # self.triggerFile = "triggers.txt"
         # self.triggerFileSize = os.path.getsize(self.triggerFile)
-        self.BuildTriggers()
+        # self.BuildTriggers()
 
     def __del__(self):
-        self.SaveTriggers()
+        # self.SaveTriggers()
+        pass
 
     def tick(self):
         self.motion.read()
@@ -76,23 +78,23 @@ class Rover:
         print("LEDCmd Received " + cmdText)
         self.leds.parseCommand(cmdText)
 
-    def AddTriggerCmd(self, cmdText):
-        print("AddTriggerCmd Received " + cmdText)
-        topic = "roger/event/matrix/"
-        t = json.loads(cmdText)
-        sections = []
-        for s in t["shape"]:
-            ss = shapes.GraphSection(s["size"], s["slope"], s["average"], s["error"])
-            sections.append(ss)
-        shape = shapes.GraphShape(sections)
-        tt = triggers.ShapeTrigger(t["name"],
-                                   t["sensor"],
-                                   self.motion.sensors[t["sensor"]],
-                                   shape,
-                                   lambda: self.PublishEvent(topic + t["name"],
-                                                             self.motion.sensors[t["sensor"]].getAvg()))
-        self.triggers.add(tt)
-        self.SaveTriggers()
+    # def AddTriggerCmd(self, cmdText):
+    #     print("AddTriggerCmd Received " + cmdText)
+    #     topic = "roger/event/matrix/"
+    #     t = json.loads(cmdText)
+    #     sections = []
+    #     for s in t["shape"]:
+    #         ss = shapes.GraphSection(s["size"], s["slope"], s["average"], s["error"])
+    #         sections.append(ss)
+    #     shape = shapes.GraphShape(sections)
+    #     tt = triggers.ShapeTrigger(t["name"],
+    #                                t["sensor"],
+    #                                self.motion.sensors[t["sensor"]],
+    #                                shape,
+    #                                lambda: self.PublishEvent(topic + t["name"],
+    #                                                          self.motion.sensors[t["sensor"]].getAvg()))
+    #     self.triggers.add(tt)
+    #     self.SaveTriggers()
 
     def MatrixCmd(self, cmdText):
         print("MatrixCmd Received " + cmdText)
@@ -102,55 +104,55 @@ class Rover:
     def PublishEvent(self, topic, message):
         mqtt.publish(topic, message)
 
-    def BuildTriggers(self):
-        self.triggers = triggers.TriggerCollection()
-        for t in self.CreateTriggers():
-            self.triggers.add(t)
+    # def BuildTriggers(self):
+    #     self.triggers = triggers.TriggerCollection()
+    #     for t in self.CreateTriggers():
+    #         self.triggers.add(t)
+    #
+    #     # #add an additional trigger to reload the triggers if the file changes
+    #     # fileChangeTrigger = triggers.Trigger(self.triggerFileSize,
+    #     # lambda x : x != os.path.getsize(self.triggerFile),
+    #     # self.BuildTriggers)
+    #     # self.triggers.add(fileChangeTrigger)
+    #
+    # def CreateTriggers(self):
+    #     topic = "roger/event/matrix/"
+    #     # self.triggerFileSize = os.path.getsize(self.triggerFile)
+    #     # f = open(self.triggerFile, "rt")
+    #     arrayTriggerRecords = self.storage.items["triggers"]
+    #     # f.close()
+    #     triggerlist = []
+    #     for t in arrayTriggerRecords:
+    #         sections = []
+    #         for s in t["shape"]:
+    #             ss = shapes.GraphSection(s["size"], s["slope"], s["average"], s["error"])
+    #             sections.append(ss)
+    #         shape = shapes.GraphShape(sections)
+    #         tt = triggers.ShapeTrigger(t["name"],
+    #                                    t["sensor"],
+    #                                    self.motion.sensors[t["sensor"]],
+    #                                    shape,
+    #                                    lambda: self.PublishEvent(topic + t["name"],
+    #                                                              self.motion.sensors[t["sensor"]].getAvg()))
+    #         triggerlist.append(tt)
+    #     return triggerlist
+    #
+    # def SaveTriggers(self):
+    #     arraytriggerrecords = []
+    #     for t in self.triggers.triggers:
+    #         sections = []
+    #         for s in t.shape.sections:
+    #             sections.append({"size": s.size, "slope": s.slope, "average": s.average, "error": s.error})
+    #         arraytriggerrecords.append({"name": t.name, "sensor": t.sensor, "shape": sections})
+    #     # f = open("new_" + self.triggerFile, "wt")
+    #     # f.write(json.dumps(arrayTriggerRecords))
+    #     # f.close()
+    #     self.storage.items["triggers"] = arraytriggerrecords
 
-        # #add an additional trigger to reload the triggers if the file changes
-        # fileChangeTrigger = triggers.Trigger(self.triggerFileSize,
-        # lambda x : x != os.path.getsize(self.triggerFile),
-        # self.BuildTriggers)
-        # self.triggers.add(fileChangeTrigger)
 
-    def CreateTriggers(self):
-        topic = "roger/event/matrix/"
-        # self.triggerFileSize = os.path.getsize(self.triggerFile)
-        # f = open(self.triggerFile, "rt")
-        arrayTriggerRecords = self.storage.items["triggers"]
-        # f.close()
-        triggerlist = []
-        for t in arrayTriggerRecords:
-            sections = []
-            for s in t["shape"]:
-                ss = shapes.GraphSection(s["size"], s["slope"], s["average"], s["error"])
-                sections.append(ss)
-            shape = shapes.GraphShape(sections)
-            tt = triggers.ShapeTrigger(t["name"],
-                                       t["sensor"],
-                                       self.motion.sensors[t["sensor"]],
-                                       shape,
-                                       lambda: self.PublishEvent(topic + t["name"],
-                                                                 self.motion.sensors[t["sensor"]].getAvg()))
-            triggerlist.append(tt)
-        return triggerlist
-
-    def SaveTriggers(self):
-        arraytriggerrecords = []
-        for t in self.triggers.triggers:
-            sections = []
-            for s in t.shape.sections:
-                sections.append({"size": s.size, "slope": s.slope, "average": s.average, "error": s.error})
-            arraytriggerrecords.append({"name": t.name, "sensor": t.sensor, "shape": sections})
-        # f = open("new_" + self.triggerFile, "wt")
-        # f.write(json.dumps(arrayTriggerRecords))
-        # f.close()
-        self.storage.items["triggers"] = arraytriggerrecords
-
-
-r = Rover()
-# r.SaveTriggers()
-r.BuildTriggers()
+# r = Rover()
+# # r.SaveTriggers()
+# r.BuildTriggers()
 
 #    #go forward
 #     triggerlist.append(triggers.Trigger(self.motion.sensors["xAccel"],

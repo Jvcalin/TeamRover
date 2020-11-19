@@ -81,7 +81,7 @@ class RoundingEquality:
 
     def __eval_equals(self, num1, num2):
         print("num1={} num2={} n={} r={}".format(num1, num2, self.n, self.r))
-        if type(num1) != type(num2):
+        if (type(num1) != type(num2)) and not ((isinstance(num1, int) or isinstance(num1, float)) and (isinstance(num2, int) or isinstance(num2, float))):
             raise RuntimeError("Operands must be the same type")
 
         if isinstance(num1, list):
@@ -108,7 +108,7 @@ class RoundingEquality:
                         self.fails += 1
                         return False
                 return True
-        elif isinstance(num1, int):
+        elif isinstance(num1, int) or isinstance(num1, float):
             self.count += 1
             if num1 == num2:
                 return True
@@ -183,20 +183,23 @@ def resolution_to_number(n, resolution):
 
 # returns the maximum value
 def max_value(array):
-    maximum = 0
-    for i in array:
-        if isinstance(i, list):
-            imax = max_value(i)
-            if imax > maximum:
-                maximum = imax
-        elif isinstance(i, tuple):
-            imax = max_value(list(i))
-            if imax > maximum:
-                maximum = imax
-        else:
-            if i > maximum:
-                maximum = i
-    return maximum
+    if isinstance(array, int) or isinstance(array, float):
+        return array
+    else:
+        maximum = 0
+        for i in array:
+            if isinstance(i, list):
+                imax = max_value(i)
+                if imax > maximum:
+                    maximum = imax
+            elif isinstance(i, tuple):
+                imax = max_value(list(i))
+                if imax > maximum:
+                    maximum = imax
+            else:
+                if i > maximum:
+                    maximum = i
+        return maximum
 
 
 def compare_tuples(num1, num2):

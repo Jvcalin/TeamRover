@@ -52,6 +52,34 @@ def shrink_num_array(array, factor):
     return small_array
 
 
+def shrink_num_array_to_size(array, toSize):
+    if len(array) <= toSize:
+        return array
+    if len(array) % toSize == 0:  # if len is an exact multiple of toSize, then use shrink_num_array above
+        return shrink_num_array(array, len(array) // toSize)
+
+    if isinstance(array[0], int):
+        divfunc = int_div
+    else:
+        divfunc = float_div
+
+    newarr = array.copy()
+    remainder = len(newarr) % toSize
+    if remainder == 1:
+        newarr[-2] = divfunc(newarr[-1] + newarr[-2], 2)
+        del(newarr[-1])
+    else:
+        split = len(newarr) // remainder
+        for i in reversed(range(1, remainder+1)):
+            newarr[(i * split) - 1] = divfunc(newarr[(i * split)] + newarr[(i * split) - 1], 2)
+            del(newarr[(i * split)])
+
+    if len(newarr) == toSize:
+        return newarr
+    else:
+        return shrink_num_array(newarr, len(newarr) // toSize)
+
+
 def shrink_tuple_array(array, factor):
     i = 0
 

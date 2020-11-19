@@ -3,7 +3,7 @@ if __name__ == '__main__':
     import sys
     sys.path.append(str(Path(__file__).parent.parent.parent))  #Make common library available
 
-from matrix_lite import led, sensors
+from matrix_lite_mock import led, sensors
 from common import rovercollections as collections
 import time
 import statistics as stat
@@ -78,7 +78,6 @@ class LEDArray:
         command = getattr(self, method)
         command(self.ledarray, arguments)
         
-
     def applyProxArray(self, array):  # array is an array of integers
         ratio = len(array) / len(self.ledarray)
         for i in range(0, len(self.ledarray)):
@@ -87,7 +86,7 @@ class LEDArray:
             if high > len(array):
                 high = len(array)
             intensity = round(stat.mean(array[low:high]) / self.MAXDISTANCE * 255)
-            self.ledarray[i] = {'r':intensity, 'g':0, 'b':0, 'w':0}  #red
+            self.ledarray[i] = {'r': intensity, 'g': 0, 'b': 0, 'w': 0}  # red
         led.set(self.ledarray)
 
     def applyColor(self, ledarray, color):
