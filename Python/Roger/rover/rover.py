@@ -1,26 +1,26 @@
 # sys.path.append("C:\Users\jvcal\Google Drive\IoT_Boards\TeamRover")
 # from ...rogercommon import mqttService as mqtt
 # from ...Python import Roger
+from pathlib import Path
 
 if __name__ == '__main__':
-    from pathlib import Path
     import sys
 
     sys.path.append(str(Path(__file__).parent.parent.parent))  # Make common library available
     # sys.path.append(str(Path(__file__)))
 
 import common.mqttService as mqtt
-import common.triggers as triggers
-import common.shapes as shapes
+# import common.triggers as triggers
+# import common.shapes as shapes
 import common.localstorage as storage
 # import proximity as Prox
 # import grid as Grid
 import matrixcreator as matrix  # import Motion, LEDArray, Sensors, Microphones
 # import featherhuzzah as Feather
 # from ...common import triggers as trig
-import common.rovercollections as Coll
-import json
-import os
+# import common.rovercollections as Coll
+# import json
+# import os
 
 
 class Rover:
@@ -28,7 +28,7 @@ class Rover:
     def __init__(self):
         self.stop = False
 
-        self.storage = storage.LocalStorage("roverstorage.txt", str(Path(__file__)))
+        self.storage = storage.LocalStorage("roverstorage.txt")
         self.storage.load()
 
         # initialize mqtt
@@ -36,9 +36,9 @@ class Rover:
                     # mqtt.RoverMqttSubscription("roger/cmd/matrix/triggers/add", lambda x: self.AddTriggerCmd(x)),
                     mqtt.RoverMqttSubscription("roger/cmd/matrix", lambda x: self.MatrixCmd(x)),
                     mqtt.RoverMqttSubscription("roger/presence/proxarray", lambda x: self.leds.applyProxArray(x))]
-        self.mqtt = mqtt.RoverMqtt("Roger_Rover_Loop", mqttSubs)
+        self.mqtt = mqtt.RoverMqtt("Roger_Rover_Loop", mqttSubs, "192.168.86.39")
 
-        self.motion = matrix.Motion()
+        self.motion = matrix.Motion(self.mqtt)
         self.leds = matrix.LEDArray()
         self.timers = [50, 2500]  # initial values - they count to 0
         self.timerSizes = [50, 2500]  # size of timer
@@ -55,14 +55,17 @@ class Rover:
         pass
 
     def tick(self):
-        self.motion.read()
+        # self.motion.read()
+        print(".")
 
         if self.checkTimer(0):
-            self.motion.publishSensors(self.mqtt)
-            self.PublishEvent("roger/cmd/presence/publish", "prox")  # tell the presence loop to publish it's latest array
+            self.motion.read()
+            # self.motion.publishSensors(self.mqtt)
+            # self.PublishEvent("roger/cmd/presence/publish", "prox")  # tell the presence loop to publish its latest array
 
         if self.checkTimer(1):
-            self.triggers.check()
+            # self.triggers.check()
+            pass
 
         return self.stop
 

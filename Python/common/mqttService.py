@@ -9,12 +9,12 @@ class RoverMqttSubscription:
 
 class RoverMqtt:
 
-    def __init__(self, name, subscriptions):
+    def __init__(self, name, subscriptions, host="192.168.86.25", port=1883):
         self.name = name
         self.thisMqtt = mqtt.Client(name, False)  # clean sessions =false so subsriptions are maintained and messages are saved if disconnected
         self.thisMqtt.on_message = self.on_message
         self.thisMqtt.on_connect = self.on_connect
-        self.thisMqtt.connect("192.168.1.25", 1883, keepalive=60)
+        self.thisMqtt.connect(host, port, keepalive=60)
         # self.thisMqtt.subscribe("roger/cmd/#", 2)
         # self.thisMqtt.subscribe("roger/sensors/#", 2)
         self.subscription = subscriptions

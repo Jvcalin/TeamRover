@@ -17,7 +17,8 @@ class LocalStorage:
                 self.content = f.read()
                 self.items = ser.fromJSON(self.content)
         except FileNotFoundError:
-            open(self.fullpath, "xt")
+            with open(self.fullpath, "wt") as f:
+                pass
 
     def save(self):
         with open(self.fullpath, "wt") as f:

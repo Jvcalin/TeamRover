@@ -26,12 +26,13 @@ Deltas - RollingArray of deltas
 
 class EventMonitor:
 
-    def __init__(self):
+    def __init__(self, size=100):
         self.stopLength = 10
         self.smoothness = 10
         self.onEventOccur = _publish
-        self.monitorSize = 100
+        self.monitorSize = size
         self.shapeSize = 25
+        # self.tupleSize = 0  # not a tuple
 
         # self.comparer = eq.RoundingEquality("medium", 3)
         self.raw = coll.RollingArray(self.monitorSize)
@@ -43,6 +44,14 @@ class EventMonitor:
         self.recording = False
 
     def post(self, value):
+        if isinstance(value, int) or isinstance(value, float):
+            self._postNum(value)
+        elif isinstance(value, tuple):
+            self._postTuple(value)
+        else:
+            raise ValueError("value is not numeric or a tuple of numbers")
+
+    def _postNum(self, value):
         self.raw.push(value)
 
         if len(self.raw.array) < self.smoothness:
@@ -54,6 +63,28 @@ class EventMonitor:
             self.deltas.push(0)
         else:
             self.deltas.push(self.smooth.array[-1] - self.smooth.array[-2])
+
+        if len(self.raw.array) == self.monitorSize:  # don't examine anything until we have a full rolling array
+            self.analyze(value)
+
+    def _postTuple(self, value):
+        self.raw.push(value)
+
+        if len(self.raw.array) < self.smoothness:
+            self.smooth.push(_tupleMean(self.raw.array))
+        else:
+            self.smooth.push(_tupleMean(self.raw.array[-1 * self.smoothness:]))
+
+        if len(self.smooth.array) < 2:
+            a = []
+            for _ in range(len(value)):
+                a.append(0)
+            self.deltas.push(tuple(a))
+        else:
+            a = []
+            for i in range(len(value)):
+                a.append(self.smooth.array[-1][i] - self.smooth.array[-2][i])
+            self.deltas.push(tuple(a))
 
         if len(self.raw.array) == self.monitorSize:  # don't examine anything until we have a full rolling array
             self.analyze(value)
@@ -78,7 +109,17 @@ class EventMonitor:
                 self.recording = True
 
     def trigger(self, value):
-        return abs(self.smooth.getAvg() - value) > (2 * self.smooth.getStdDev())
+        if isinstance(value, int) or isinstance(value, float):
+            return abs(self.smooth.getAvg() - value) > (2 * self.smooth.getStdDev())
+        elif isinstance(value, tuple):
+            avg = self.smooth.getAvg()
+            stddev = self.smooth.getStdDev()
+            for i in range(len(value)):
+                if abs(avg[i] - value[i]) > (2 * stddev[i]):
+                    return True
+            return False
+        else:
+            raise ValueError("value is not numeric")
 
     # def quiet(self):
     #     return self.comparer.equals(self.deltas.array[-1], self.deltas.array[-2])
@@ -91,3 +132,15 @@ def _publish(shape):
     print(shape)
 
 
+def _tupleMean(tuplearray):
+    # each item in the array must be a same size tuple
+    tuplesize = len(list(tuplearray[0]))
+    totals = []
+    for _ in range(tuplesize):
+        totals.append(0)
+    for i in range(len(tuplearray)):
+        for j in range(tuplesize):
+            totals[j] += tuplearray[i][j]
+    for j in range(tuplesize):
+        totals[j] /= len(tuplearray)
+    return tuple(totals)

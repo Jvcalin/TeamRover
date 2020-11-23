@@ -7,7 +7,7 @@ class Sensors:
         self.imu = Imu()
 
 
-class Imu:
+class ImuReading:
     def __init__(self):
         self.accel_x = 12
         self.accel_y = 12
@@ -15,15 +15,23 @@ class Imu:
         self.gyro_x = 23
         self.gyro_y = 23
         self.gyro_z = 23
-        self.tilt = 23
+        self.mag_x = 23
+        self.mag_y = 23
+        self.mag_z = 23
+        self.pitch = 23
         self.roll = 23
         self.yaw = 23
 
+class Imu:
+    def __init__(self):
+        self.reading = ImuReading()
+    def read(self):
+        return self.reading
 
 
 class Led:
     def __init__(self):
-        pass
+        self.length = 100
     def set(self):
         pass
     def set(self,color):

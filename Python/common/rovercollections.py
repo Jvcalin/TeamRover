@@ -1,5 +1,4 @@
 import statistics as stat
-import collections 
 
 
 class CircularArray:
@@ -57,36 +56,76 @@ class RollingArray:
         #return arr
 
     def getAvg(self):
-        return stat.mean(self.array)
+        if isinstance(self.array[0], int) or isinstance(self.array[0], float):
+            return stat.mean(self.array)
+        elif isinstance(self.array[0], tuple):
+            return _apply_aggregate_function_to_tuple_array(stat.mean, self.array)
 
     def getRange(self):
-        return max(self.array) - min(self.array)
+        if isinstance(self.array[0], int) or isinstance(self.array[0], float):
+            return max(self.array) - min(self.array)
+        elif isinstance(self.array[0], tuple):
+            return _apply_aggregate_function_to_tuple_array(lambda x: max(x) - min(x), self.array)
+        # return max(self.array) - min(self.array)
 
     def getStdDev(self):
-        return stat.stdev(self.array)
+        if isinstance(self.array[0], int) or isinstance(self.array[0], float):
+            return stat.stdev(self.array)
+        elif isinstance(self.array[0], tuple):
+            return _apply_aggregate_function_to_tuple_array(stat.stdev, self.array)
 
     def getMedian(self):
-        return stat.median(self.array)
+        if isinstance(self.array[0], int) or isinstance(self.array[0], float):
+            return stat.median(self.array)
+        elif isinstance(self.array[0], tuple):
+            return _apply_aggregate_function_to_tuple_array(stat.median, self.array)
+        # return stat.median(self.array)
 
     def getVariance(self):
-        return stat.variance(self.array)
+        if isinstance(self.array[0], int) or isinstance(self.array[0], float):
+            return stat.variance(self.array)
+        elif isinstance(self.array[0], tuple):
+            return _apply_aggregate_function_to_tuple_array(stat.variance, self.array)
+        # return stat.variance(self.array)
 
     def getPVariance(self):
-        return stat.pvariance(self.array)
+        if isinstance(self.array[0], int) or isinstance(self.array[0], float):
+            return stat.pvariance(self.array)
+        elif isinstance(self.array[0], tuple):
+            return _apply_aggregate_function_to_tuple_array(stat.pvariance, self.array)
+        # return stat.pvariance(self.array)
 
     def getTrend(self, size):
-        deltas = []
-        if size > len(self.array):
-            Size = len(self.array)
-        else:
-            Size = size
-        for x in range(len(self.array)-Size, len(self.array)):
-            if x > 0:
-                delta = self.array[x] - self.array[x-1]
-                deltas.append(delta)
-        if len(deltas) == 0:
-            return 0
-        else:
-            return stat.mean(deltas)
+        if isinstance(self.array[0], int) or isinstance(self.array[0], float):
+            return stat.stdev(self.array)
+        elif isinstance(self.array[0], tuple):
+            return _apply_aggregate_function_to_tuple_array(lambda x: self._getTrend(x, size), self.array)
 
-            
+
+def _getTrend(array, size):
+    deltas = []
+    if size > len(array):
+        Size = len(array)
+    else:
+        Size = size
+    for x in range(len(array)-Size, len(array)):
+        if x > 0:
+            delta = array[x] - array[x-1]
+            deltas.append(delta)
+    if len(deltas) == 0:
+        return 0
+    else:
+        return stat.mean(deltas)
+
+
+def _transpose_matrix(mat):
+    return [[mat[j][i] for j in range(len(mat))] for i in range(len(mat[0]))]
+
+
+def _apply_aggregate_function_to_tuple_array(func, array):
+    tarray = _transpose_matrix(array)
+    t = []
+    for i in tarray:
+        t.append(func(i))
+    return tuple(t)
+

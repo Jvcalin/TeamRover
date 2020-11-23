@@ -1,64 +1,52 @@
 if __name__ == '__main__':
     from pathlib import Path
     import sys
-    sys.path.append(str(Path(__file__).parent.parent.parent))  #Make common library available
+    sys.path.append(str(Path(__file__).parent.parent.parent))  # Make common library available
 
-from matrix_lite_mock import led, sensors
-from common import rovercollections as collections
+from matrix_lite import led, sensors
+# from common import rovercollections as collections
+from common import eventmonitor as ev
 import time
 import statistics as stat
 from math import pi, sin
 import json
 
+
 class Motion:
 
-
-    def __init__(self):
-        arraysize = 25
-        self.sensors = {}
-        self.sensors["xAccel"] = collections.RollingArray(arraysize)  
-        self.sensors["yAccel"] = collections.RollingArray(arraysize)  
-        self.sensors["zAccel"] = collections.RollingArray(arraysize)  
-        self.sensors["xSpin"] = collections.RollingArray(arraysize)
-        self.sensors["ySpin"] = collections.RollingArray(arraysize)
-        self.sensors["zSpin"] = collections.RollingArray(arraysize)
-        self.sensors["xMag"] = collections.RollingArray(arraysize)
-        self.sensors["yMag"] = collections.RollingArray(arraysize)
-        self.sensors["zMag"] = collections.RollingArray(arraysize)
-        self.sensors["pitch"] = collections.RollingArray(arraysize)
-        self.sensors["roll"] = collections.RollingArray(arraysize)
-        self.sensors["yaw"] = collections.RollingArray(arraysize)
-        self.sensors["orientation"] = collections.RollingArray(arraysize)
-        self.read()
+    def __init__(self, mqtt):
+        arraysize = 100
+        self.sensors = {"accel": ev.EventMonitor(arraysize), "spin": ev.EventMonitor(arraysize),
+                        "mag": ev.EventMonitor(arraysize), "direction": ev.EventMonitor(arraysize),
+                        "orientation": ev.EventMonitor(arraysize)}
+        self.sensors["accel"].onEventOccur = lambda x: self.publishEvent("accel", x)
+        self.sensors["spin"].onEventOccur = lambda x: self.publishEvent("spin", x)
+        self.sensors["mag"].onEventOccur = lambda x: self.publishEvent("mag", x)
+        self.sensors["direction"].onEventOccur = lambda x: self.publishEvent("direction", x)
+        self.sensors["orientation"].onEventOccur = lambda x: self.publishEvent("orientation", x)
+        self.mqtt = mqtt
+        # self.read()
 
     def read(self):
         imu = sensors.imu.read()
-        self.sensors["xAccel"].push(imu.accel_x)  
-        self.sensors["yAccel"].push(imu.accel_y)
-        self.sensors["zAccel"].push(imu.accel_z)
-        self.sensors["xSpin"].push(imu.gyro_x)  
-        self.sensors["ySpin"].push(imu.gyro_y)  
-        self.sensors["zSpin"].push(imu.gyro_z)  
-        self.sensors["xMag"].push(imu.mag_x)  
-        self.sensors["yMag"].push(imu.mag_y)  
-        self.sensors["zMag"].push(imu.mag_z)  
-        self.sensors["pitch"].push(imu.pitch)  
-        self.sensors["roll"].push(imu.roll)  
-        self.sensors["yaw"].push(imu.yaw)  
-        self.sensors["orientation"].push(self.getOrientationAngle(imu.yaw))
+        self.sensors["accel"].post((imu.accel_x, imu.accel_y, imu.accel_z))
+        self.sensors["spin"].post((imu.gyro_x, imu.gyro_y, imu.gyro_z))
+        self.sensors["mag"].post((imu.mag_x, imu.mag_y, imu.mag_z))
+        self.sensors["direction"].post((imu.pitch, imu.roll, imu.yaw))
+        self.sensors["orientation"].post(self.getOrientationAngle(imu.yaw))
 
     def getOrientationAngle(self, val):
         return val * 180 / pi  
 
-    def publishSensors(self, mqtt):
-        content = json.dumps(self.serializeSensors())
-        mqtt.publish("roger/sensors/matrix/imu",content)
+    def publishEvent(self, name, payload):
+        content = json.dumps(payload)
+        self.mqtt.publish("roger/sensors/matrix/imu/" + name, content)
         
-    def serializeSensors(self):
-        sensorsDict = {}
-        for s in self.sensors:
-            sensorsDict[s] = self.sensors[s].getAvg()
-        return sensorsDict
+    # def serializeSensors(self):
+    #     sensorsDict = {}
+    #     for s in self.sensors:
+    #         sensorsDict[s] = self.sensors[s].getAvg()
+    #     return sensorsDict
 
 
 class LEDArray:
@@ -67,7 +55,7 @@ class LEDArray:
     def __init__(self):
         self.ledarray = []
         for i in range(led.length):
-            self.ledarray.append({'r':0, 'g':0, 'b':0, 'w':0})
+            self.ledarray.append({'r': 0, 'g': 0, 'b': 0, 'w': 0})
 
     def parseCommand(self, payload):
         print("Parsing " + payload)
@@ -125,7 +113,7 @@ class LEDArray:
 
                 counter += ledAdjust
 
-                everloop[i] = {'r':r, 'g':g, 'b':b}
+                everloop[i] = {'r': r, 'g': g, 'b': b}
 
             # Slowly show rainbow
             if tick != 0:

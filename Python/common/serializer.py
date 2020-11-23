@@ -44,7 +44,9 @@ def toJSON(item):
 
 def fromJSON(json):
     json = __cleanJSON(json)
-    if json[0] == "{" and json[-1] == "}":
+    if json == "":
+        return None
+    elif json[0] == "{" and json[-1] == "}":
         r, s = __getDict(json)
         return r
     elif json[0] == "[" and json[-1] == "]":
