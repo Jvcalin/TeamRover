@@ -2,6 +2,8 @@ from pathlib import Path
 import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))  #Make common library available
 
+print("Adding Path: " + str(Path(__file__).parent.parent.parent))
+
 
 """
 The rover loop is the main interface to the Matrix Creator

@@ -1,11 +1,10 @@
 # sys.path.append("C:\Users\jvcal\Google Drive\IoT_Boards\TeamRover")
 # from ...rogercommon import mqttService as mqtt
 # from ...Python import Roger
-from pathlib import Path
 
 if __name__ == '__main__':
+    from pathlib import Path
     import sys
-
     sys.path.append(str(Path(__file__).parent.parent.parent))  # Make common library available
     # sys.path.append(str(Path(__file__)))
 
@@ -36,7 +35,7 @@ class Rover:
                     # mqtt.RoverMqttSubscription("roger/cmd/matrix/triggers/add", lambda x: self.AddTriggerCmd(x)),
                     mqtt.RoverMqttSubscription("roger/cmd/matrix", lambda x: self.MatrixCmd(x)),
                     mqtt.RoverMqttSubscription("roger/presence/proxarray", lambda x: self.leds.applyProxArray(x))]
-        self.mqtt = mqtt.RoverMqtt("Roger_Rover_Loop", mqttSubs, "192.168.86.39")
+        self.mqtt = mqtt.RoverMqtt("Roger_Rover_Loop", mqttSubs, "192.168.86.25")
 
         self.motion = matrix.Motion(self.mqtt)
         self.leds = matrix.LEDArray()
@@ -56,7 +55,7 @@ class Rover:
 
     def tick(self):
         # self.motion.read()
-        print(".")
+        # print(".")
 
         if self.checkTimer(0):
             self.motion.read()

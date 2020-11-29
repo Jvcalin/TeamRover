@@ -1,7 +1,7 @@
 import statistics as stat
-import rovercollections as coll
+import common.rovercollections as coll
 # import equality as eq
-import arrayshrinker as shrink
+import common.arrayshrinker as shrink
 
 """
 An "event" is a group of changes that happen on a time series graph
