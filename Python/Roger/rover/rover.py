@@ -30,7 +30,7 @@ class Rover:
         self.storage = storage.LocalStorage("roverstorage.txt")
         self.storage.load()
 
-        # initialize mqtt
+        # initialize mqtt uu
         mqttSubs = [mqtt.RoverMqttSubscription("roger/cmd/matrix/led", lambda x: self.LEDCmd(x)),
                     # mqtt.RoverMqttSubscription("roger/cmd/matrix/triggers/add", lambda x: self.AddTriggerCmd(x)),
                     mqtt.RoverMqttSubscription("roger/cmd/matrix", lambda x: self.MatrixCmd(x)),
