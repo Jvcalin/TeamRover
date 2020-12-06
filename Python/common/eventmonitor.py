@@ -2,7 +2,7 @@ import statistics as stat
 import common.rovercollections as coll
 # import equality as eq
 import common.arrayshrinker as shrink
-import influxdb as idb
+import common.influxdb as idb
 
 """
 An "event" is a group of changes that happen on a time series graph
@@ -65,6 +65,10 @@ class EventMonitor:
             self.deltas.push(0)
         else:
             self.deltas.push(self.smooth.array[-1] - self.smooth.array[-2])
+
+        if self.influxConn is not None:
+            p = {"value": value, "smooth": self.smooth.array[-1], "delta": self.deltas.array[-1]}
+            self.influxConn.post(p)
 
         if len(self.raw.array) == self.monitorSize:  # don't examine anything until we have a full rolling array
             self.analyze(value)
