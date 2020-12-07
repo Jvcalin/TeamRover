@@ -31,7 +31,7 @@ class Motion:
 
     def read(self):
         imu = sensors.imu.read()
-        self.sensors["accel"].post((imu.accel_x, imu.accel_y, imu.accel_z))
+        self.sensors["accel"].post((float(imu.accel_x), float(imu.accel_y), float(imu.accel_z)))
         # self.sensors["spin"].post((imu.gyro_x, imu.gyro_y, imu.gyro_z))
         # self.sensors["mag"].post((imu.mag_x, imu.mag_y, imu.mag_z))
         # self.sensors["direction"].post((imu.pitch, imu.roll, imu.yaw))
