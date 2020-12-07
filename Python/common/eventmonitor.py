@@ -62,7 +62,10 @@ class EventMonitor:
             self.smooth.push(stat.mean(self.raw.array[-1 * self.smoothness:]))
 
         if len(self.smooth.array) < 2:
-            self.deltas.push(0)
+            if isinstance(value, int):
+                self.deltas.push(0)
+            else:
+                self.deltas.push(0.0)
         else:
             self.deltas.push(self.smooth.array[-1] - self.smooth.array[-2])
 
@@ -83,8 +86,11 @@ class EventMonitor:
 
         if len(self.smooth.array) < 2:
             a = []
-            for _ in range(len(value)):
-                a.append(0)
+            for i in range(len(value)):
+                if isinstance(value[i], int):
+                    a.append(0)
+                else:
+                    a.append(0.0)
             self.deltas.push(tuple(a))
         else:
             a = []
