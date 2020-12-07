@@ -17,9 +17,12 @@ roger = rvr.Rover()
 
 
 while True:
+    t = time.time()
     if roger.tick():
         break
-    # time.sleep(0.002)
+    s = t - time.time()
+    if s < 0.02:
+        time.sleep(0.02 - s)
     #roger.readSensors()
     #roger.checkEvents()
     #_mqtt.checkEvents()
