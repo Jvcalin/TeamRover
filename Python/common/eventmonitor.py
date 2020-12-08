@@ -108,8 +108,8 @@ class EventMonitor:
             self.analyze(value)
 
     def analyze(self, value):
-        print(self.raw.getStdDev(), self.smooth.getStdDev())
-        print(self.raw.getAvg(), self.smooth.getAvg())
+        # print(self.raw.getStdDev(), self.smooth.getStdDev())
+        # print(self.raw.getAvg(), self.smooth.getAvg())
         if self.recording:
             self.recSize += 1
             if self.trigger(value):
