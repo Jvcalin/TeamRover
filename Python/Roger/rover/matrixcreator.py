@@ -16,26 +16,26 @@ class Motion:
 
     def __init__(self, mqtt):
         arraysize = 100
-        self.sensors = {"accel": ev.EventMonitor("accelerometer", arraysize)}
-                        # , "spin": ev.EventMonitor("spin", arraysize)
-                        # , "mag": ev.EventMonitor("magnetometer", arraysize)
-                        # , "direction": ev.EventMonitor("direction", arraysize)
-                        # , "orientation": ev.EventMonitor("orientation", arraysize)}
+        self.sensors = {"accel": ev.EventMonitor("accelerometer", arraysize)
+                        , "spin": ev.EventMonitor("spin", arraysize)
+                        , "mag": ev.EventMonitor("magnetometer", arraysize)
+                        , "direction": ev.EventMonitor("direction", arraysize)
+                        , "orientation": ev.EventMonitor("orientation", arraysize)}
         self.sensors["accel"].onEventOccur = lambda x: self.publishEvent("accelerometer", x)
-        # self.sensors["spin"].onEventOccur = lambda x: self.publishEvent("spin", x)
-        # self.sensors["mag"].onEventOccur = lambda x: self.publishEvent("magnetometer", x)
-        # self.sensors["direction"].onEventOccur = lambda x: self.publishEvent("direction", x)
-        # self.sensors["orientation"].onEventOccur = lambda x: self.publishEvent("orientation", x)
+        self.sensors["spin"].onEventOccur = lambda x: self.publishEvent("spin", x)
+        self.sensors["mag"].onEventOccur = lambda x: self.publishEvent("magnetometer", x)
+        self.sensors["direction"].onEventOccur = lambda x: self.publishEvent("direction", x)
+        self.sensors["orientation"].onEventOccur = lambda x: self.publishEvent("orientation", x)
         self.mqtt = mqtt
         # self.read()
 
     def read(self):
         imu = sensors.imu.read()
         self.sensors["accel"].post((float(imu.accel_x), float(imu.accel_y), float(imu.accel_z)))
-        # self.sensors["spin"].post((imu.gyro_x, imu.gyro_y, imu.gyro_z))
-        # self.sensors["mag"].post((imu.mag_x, imu.mag_y, imu.mag_z))
-        # self.sensors["direction"].post((imu.pitch, imu.roll, imu.yaw))
-        # self.sensors["orientation"].post(self.getOrientationAngle(imu.yaw))
+        self.sensors["spin"].post((float(imu.gyro_x), float(imu.gyro_y), float(imu.gyro_z)))
+        self.sensors["mag"].post((float(imu.mag_x), float(imu.mag_y), float(imu.mag_z)))
+        self.sensors["direction"].post((float(imu.pitch), float(imu.roll), float(imu.yaw)))
+        self.sensors["orientation"].post(self.getOrientationAngle(imu.yaw))
         # print([imu.accel_x, imu.accel_y, imu.accel_z, imu.gyro_x, imu.gyro_y, imu.mag_z, imu.pitch, imu.roll, imu.yaw])
 
     def getOrientationAngle(self, val):
