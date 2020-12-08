@@ -39,7 +39,7 @@ class Motion:
         # print([imu.accel_x, imu.accel_y, imu.accel_z, imu.gyro_x, imu.gyro_y, imu.mag_z, imu.pitch, imu.roll, imu.yaw])
 
     def getOrientationAngle(self, val):
-        return val * 180 / pi  
+        return val  # * 180 / pi
 
     def publishEvent(self, name, payload):
         content = json.dumps(payload)
