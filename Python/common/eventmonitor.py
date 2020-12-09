@@ -31,10 +31,10 @@ class EventMonitor:
         self.rover = rovername
         self.measure = measurename
         self.stopLength = 10
-        self.smoothness = 25
+        self.smoothness = 50
         self.onEventOccur = _publish
         self.monitorSize = size
-        self.shapeSize = 10
+        self.shapeSize = 50
         self.influxConn = None
         # self.tupleSize = 0  # not a tuple
 
