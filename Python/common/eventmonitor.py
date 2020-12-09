@@ -28,11 +28,11 @@ Deltas - RollingArray of deltas
 class EventMonitor:
 
     def __init__(self, name, size=100):
-        self.stopLength = 10
-        self.smoothness = 10
+        self.stopLength = 3
+        self.smoothness = 5
         self.onEventOccur = _publish
         self.monitorSize = size
-        self.shapeSize = 25
+        self.shapeSize = 5
         self.influxConn = idb.InfluxdbMeasurement("roger", name)
         # self.tupleSize = 0  # not a tuple
 
