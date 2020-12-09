@@ -110,7 +110,7 @@ class EventMonitor:
             self.influxConn.post(p)
 
         if len(self.raw.array) == self.monitorSize:  # don't examine anything until we have a full rolling array
-            self.analyze(value)
+            self.analyze(self.smooth.array[-1])
 
     def analyze(self, value):
         # print(self.raw.getStdDev(), self.smooth.getStdDev())
@@ -133,12 +133,12 @@ class EventMonitor:
 
     def trigger(self, value):
         if isinstance(value, int) or isinstance(value, float):
-            return abs(self.smooth.getAvg() - value) > (2 * self.smooth.getStdDev())
+            return abs(self.smooth.getAvg() - value) > (3 * self.raw.getStdDev())
         elif isinstance(value, tuple):
-            avg = self.smooth.getAvg()
-            stddev = self.smooth.getStdDev()
+            avg = self.raw.getAvg()
+            stddev = self.raw.getStdDev()
             for i in range(len(value)):
-                if abs(avg[i] - value[i]) > (2 * stddev[i]):
+                if abs(avg[i] - value[i]) > (3 * stddev[i]):
                     return True
             return False
         else:
