@@ -44,7 +44,21 @@ class Motion:
     def publishEvent(self, name, payload):
         content = json.dumps(payload)
         self.mqtt.publish("roger/sensors/matrix/imu/" + name, content)
-        
+
+    def startLogging(self, sensorname="ALL"):
+        if sensorname == "ALL":
+            for s in self.sensors:
+                s.startLog()
+        else:
+            self.sensors[sensorname].startLog()
+
+    def stopLogging(self, sensorname="ALL"):
+        if sensorname == "ALL":
+            for s in self.sensors:
+                s.stopLog()
+        else:
+            self.sensors[sensorname].stopLog()
+
     # def serializeSensors(self):
     #     sensorsDict = {}
     #     for s in self.sensors:

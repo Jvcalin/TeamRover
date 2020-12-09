@@ -102,11 +102,30 @@ class Rover:
 
     def MatrixCmd(self, cmdText):
         print("MatrixCmd Received " + cmdText)
-        if (cmdText == "stop"):
+        if cmdText.lower() == "stop":
             self.stop = True
+        elif cmdText.strip().lower().startswith("startlog"):
+            if cmdText == "startlog":
+                self.motion.startLogging()
+            else:
+                self.motion.startLogging(cmdText.lower()[8:].strip())
+        elif cmdText.strip().lower().startswith("stoplog"):
+            if cmdText == "stoplog":
+                self.motion.stopLogging()
+            else:
+                self.motion.stopLogging(cmdText.lower()[7:].strip())
 
     def PublishEvent(self, topic, message):
-        mqtt.publish(topic, message)
+        self.mqtt.publish(topic, message)
+
+# def __trim(string, count=0):
+#     if string[0] in [' ', '\n', '\r', '\t', '\f']:
+#         return __trim(string[1:], count + 1)
+#     elif string[-1] in [' ', '\n', '\r', '\t', '\f']:
+#         return __trim(string[:-1], count + 1)
+#     else:
+#         return string, count
+
 
     # def BuildTriggers(self):
     #     self.triggers = triggers.TriggerCollection()

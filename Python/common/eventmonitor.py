@@ -27,13 +27,15 @@ Deltas - RollingArray of deltas
 
 class EventMonitor:
 
-    def __init__(self, name, size=100):
+    def __init__(self, rovername, measurename, size=100):
+        self.rover = rovername
+        self.measure = measurename
         self.stopLength = 10
         self.smoothness = 25
         self.onEventOccur = _publish
         self.monitorSize = size
         self.shapeSize = 10
-        self.influxConn = idb.InfluxdbMeasurement("roger", name)
+        self.influxConn = None
         # self.tupleSize = 0  # not a tuple
 
         # self.comparer = eq.RoundingEquality("medium", 3)
@@ -52,6 +54,12 @@ class EventMonitor:
             self._postTuple(value)
         else:
             raise ValueError("value is not numeric or a tuple of numbers")
+
+    def startLog(self):
+        self.influxConn = idb.InfluxdbMeasurement(self.rover, self.measure)
+
+    def stopLog(self):
+        self.influxConn = None
 
     def _postNum(self, value):
         self.raw.push(value)

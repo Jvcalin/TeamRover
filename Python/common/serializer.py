@@ -1,7 +1,7 @@
 """
 Serialize various objects to json
 """
-import importlib
+# import importlib
 
 def toJSON(item):
     if isinstance(item, list):
