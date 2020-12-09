@@ -47,15 +47,15 @@ class Motion:
 
     def startLogging(self, sensorname="ALL"):
         if sensorname == "ALL":
-            for s in self.sensors:
-                s.startLog()
+            for s in self.sensors.keys():
+                self.sensors[s].startLog()
         else:
             self.sensors[sensorname].startLog()
 
     def stopLogging(self, sensorname="ALL"):
         if sensorname == "ALL":
-            for s in self.sensors:
-                s.stopLog()
+            for s in self.sensors.keys():
+                self.sensors[s].stopLog()
         else:
             self.sensors[sensorname].stopLog()
 
