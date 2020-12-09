@@ -15,7 +15,7 @@ print("starting main")
 
 roger = rvr.Rover()
 
-rvr.mqtt.publish("roger/status", "Roger Rover Loop Starting")
+roger.PublishEvent("roger/status", "Roger Rover Loop Starting")
 while True:
     t = time.time()
     if roger.tick():
@@ -24,7 +24,7 @@ while True:
     if s < 0.02:
         time.sleep(0.02 - s)
 
-rvr.mqtt.publish("roger/status", "Roger Rover Loop Stopping")
+roger.PublishEvent("roger/status", "Roger Rover Loop Stopping")
 
 
 
