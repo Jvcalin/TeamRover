@@ -56,7 +56,7 @@ def shrink_num_array_to_size(array, toSize):
     if len(array) <= toSize:
         return array
     if len(array) % toSize == 0:  # if len is an exact multiple of toSize, then use shrink_num_array above
-        return shrink_num_array(array, len(array) // toSize)
+        return shrink(array, len(array) // toSize)
 
     if isinstance(array[0], int):
         divfunc = int_div
@@ -77,7 +77,7 @@ def shrink_num_array_to_size(array, toSize):
     if len(newarr) == toSize:
         return newarr
     else:
-        return shrink_num_array(newarr, len(newarr) // toSize)
+        return shrink(newarr, len(newarr) // toSize)
 
 
 def shrink_tuple_array(array, factor):
