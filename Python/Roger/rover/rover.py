@@ -105,12 +105,12 @@ class Rover:
         if cmdText.lower() == "stop":
             self.stop = True
         elif cmdText.strip().lower().startswith("startlog"):
-            if cmdText == "startlog":
+            if cmdText.lower().strip() == "startlog":
                 self.motion.startLogging()
             else:
                 self.motion.startLogging(cmdText.lower()[8:].strip())
         elif cmdText.strip().lower().startswith("stoplog"):
-            if cmdText == "stoplog":
+            if cmdText.lower().strip() == "stoplog":
                 self.motion.stopLogging()
             else:
                 self.motion.stopLogging(cmdText.lower()[7:].strip())
