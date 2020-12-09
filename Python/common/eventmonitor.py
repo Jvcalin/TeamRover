@@ -99,9 +99,14 @@ class EventMonitor:
             self.deltas.push(tuple(a))
 
         if self.influxConn is not None and len(value) == 3:
+            avg = self.smooth.getAvg()
+            stddev = self.smooth.getStdDev()
             p = {"value_x": value[0], "smooth_x": self.smooth.array[-1][0], "delta_x": self.deltas.array[-1][0],
+                 "smooth_x_avg": avg[0], "smooth_x.stddev": stddev[0],
                  "value_y": value[1], "smooth_y": self.smooth.array[-1][1], "delta_y": self.deltas.array[-1][1],
-                 "value_z": value[2], "smooth_z": self.smooth.array[-1][2], "delta_z": self.deltas.array[-1][2]}
+                 "smooth_y_avg": avg[1], "smooth_y.stddev": stddev[1],
+                 "value_z": value[2], "smooth_z": self.smooth.array[-1][2], "delta_z": self.deltas.array[-1][2],
+                 "smooth_z_avg": avg[2], "smooth_z.stddev": stddev[2]}
             self.influxConn.post(p)
 
         if len(self.raw.array) == self.monitorSize:  # don't examine anything until we have a full rolling array
