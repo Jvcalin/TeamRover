@@ -98,7 +98,7 @@ class EventMonitor:
                 a.append(self.smooth.array[-1][i] - self.smooth.array[-2][i])
             self.deltas.push(tuple(a))
 
-        if self.influxConn is not None and len(value) == 3:
+        if self.influxConn is not None and len(value) == 3 and len(self.smooth.array) > 2:
             avg = self.smooth.getAvg()
             stddev = self.smooth.getStdDev()
             p = {"value_x": value[0], "smooth_x": self.smooth.array[-1][0], "delta_x": self.deltas.array[-1][0],
