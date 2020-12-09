@@ -16,11 +16,12 @@ class Motion:
 
     def __init__(self, mqtt):
         arraysize = 50
-        self.sensors = {"accel": ev.EventMonitor("accelerometer", arraysize)}
-                        # , "spin": ev.EventMonitor("spin", arraysize)
-                        # , "mag": ev.EventMonitor("magnetometer", arraysize)
-                        # , "direction": ev.EventMonitor("direction", arraysize)
-                        # , "orientation": ev.EventMonitor("orientation", arraysize)}
+        self.rover = "roger"
+        self.sensors = {"accel": ev.EventMonitor(self.rover, "accelerometer", arraysize)}
+                        # , "spin": ev.EventMonitor(self.rover, "spin", arraysize)
+                        # , "mag": ev.EventMonitor(self.rover, "magnetometer", arraysize)
+                        # , "direction": ev.EventMonitor(self.rover, "direction", arraysize)
+                        # , "orientation": ev.EventMonitor(self.rover, "orientation", arraysize)}
         self.sensors["accel"].onEventOccur = lambda x: self.publishEvent("accelerometer", x)
         # self.sensors["spin"].onEventOccur = lambda x: self.publishEvent("spin", x)
         # self.sensors["mag"].onEventOccur = lambda x: self.publishEvent("magnetometer", x)
