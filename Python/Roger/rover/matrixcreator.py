@@ -15,7 +15,7 @@ import json
 class Motion:
 
     def __init__(self, mqtt):
-        arraysize = 20
+        arraysize = 50
         self.sensors = {"accel": ev.EventMonitor("accelerometer", arraysize)}
                         # , "spin": ev.EventMonitor("spin", arraysize)
                         # , "mag": ev.EventMonitor("magnetometer", arraysize)
