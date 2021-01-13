@@ -1,4 +1,5 @@
 import statistics as stat
+import math
 import common.rovercollections as coll
 # import equality as eq
 import common.arrayshrinker as shrink
@@ -27,41 +28,27 @@ Deltas - RollingArray of deltas
 
 class EventMonitor:
 
-    def __init__(self, rovername, measurename, size=100):
-        self.rover = rovername
-        self.measure = measurename
-        self.stopLength = 10
-        self.smoothness = 50
+    def __init__(self, rover_name, measure_name, size=100, stop_length=10, smoothness=50, shape_size=50):
+        self.rover = rover_name
+        self.measure = measure_name
+        self.stopLength = stop_length
+        self.smoothness = smoothness
         self.onEventOccur = _publish
         self.monitorSize = size
-        self.shapeSize = 50
+        self.shapeSize = shape_size
         self.influxConn = None
-        # self.tupleSize = 0  # not a tuple
 
-        # self.comparer = eq.RoundingEquality("medium", 3)
         self.raw = coll.RollingArray(self.monitorSize)
         self.smooth = coll.RollingArray(self.monitorSize)
         self.deltas = coll.RollingArray(self.monitorSize)
+        self.deltas_running_avg = 0
+        self.deltas_running_stddev = 0
 
         self.recSize = 0
         self.quiet = 0
         self.recording = False
 
     def post(self, value):
-        if isinstance(value, int) or isinstance(value, float):
-            self._postNum(value)
-        elif isinstance(value, tuple):
-            self._postTuple(value)
-        else:
-            raise ValueError("value is not numeric or a tuple of numbers")
-
-    def startLog(self):
-        self.influxConn = idb.InfluxdbMeasurement(self.rover, self.measure)
-
-    def stopLog(self):
-        self.influxConn = None
-
-    def _postNum(self, value):
         self.raw.push(value)
 
         if len(self.raw.array) < self.smoothness:
@@ -84,41 +71,11 @@ class EventMonitor:
         if len(self.raw.array) == self.monitorSize:  # don't examine anything until we have a full rolling array
             self.analyze(value)
 
-    def _postTuple(self, value):
-        self.raw.push(value)
+    def startLog(self):
+        self.influxConn = idb.InfluxdbMeasurement(self.rover, self.measure)
 
-        if len(self.raw.array) < self.smoothness:
-            self.smooth.push(_tupleMean(self.raw.array))
-        else:
-            self.smooth.push(_tupleMean(self.raw.array[-1 * self.smoothness:]))
-
-        if len(self.smooth.array) < 2:
-            a = []
-            for i in range(len(value)):
-                if isinstance(value[i], int):
-                    a.append(0)
-                else:
-                    a.append(0.0)
-            self.deltas.push(tuple(a))
-        else:
-            a = []
-            for i in range(len(value)):
-                a.append(self.smooth.array[-1][i] - self.smooth.array[-2][i])
-            self.deltas.push(tuple(a))
-
-        if self.influxConn is not None and len(value) == 3 and len(self.smooth.array) > 2:
-            avg = self.smooth.getAvg()
-            stddev = self.smooth.getStdDev()
-            p = {"value_x": value[0], "smooth_x": self.smooth.array[-1][0], "delta_x": self.deltas.array[-1][0],
-                 "smooth_x_avg": avg[0], "smooth_x.stddev": stddev[0],
-                 "value_y": value[1], "smooth_y": self.smooth.array[-1][1], "delta_y": self.deltas.array[-1][1],
-                 "smooth_y_avg": avg[1], "smooth_y.stddev": stddev[1],
-                 "value_z": value[2], "smooth_z": self.smooth.array[-1][2], "delta_z": self.deltas.array[-1][2],
-                 "smooth_z_avg": avg[2], "smooth_z.stddev": stddev[2]}
-            self.influxConn.post(p)
-
-        if len(self.raw.array) == self.monitorSize:  # don't examine anything until we have a full rolling array
-            self.analyze(self.smooth.array[-1])
+    def stopLog(self):
+        self.influxConn = None
 
     def analyze(self, value):
         # print(self.raw.getStdDev(), self.smooth.getStdDev())
@@ -138,13 +95,76 @@ class EventMonitor:
             if self.trigger(value):
                 self.recSize = 1
                 self.recording = True
+            else:
+                self.deltas_running_avg = self._adjust_running_avg(self.deltas_running_avg, value, self.monitorSize)
+                self.deltas_running_stddev = self._adjust_running_stddev(self.deltas_running_stddev,
+                                                                         self.deltas_running_avg,
+                                                                         value,
+                                                                         self.monitorSize)
 
     def trigger(self, value):
         if isinstance(value, int) or isinstance(value, float):
-            return abs(self.smooth.getAvg() - value) > (3 * self.raw.getStdDev())
-        elif isinstance(value, tuple):
-            avg = self.raw.getAvg()
-            stddev = self.raw.getStdDev()
+            return abs(self.deltas.getAvg() - value) > (3 * self.deltas.getStdDev())
+        else:
+            raise ValueError("value is not numeric")
+
+    def publishEvent(self):
+        pub = {"value": self.smooth.getAvg(),
+               "shape": shrink.shrink_num_array_to_size(self.deltas.array[self.recSize * -1:], self.shapeSize)}
+        self.onEventOccur(pub)
+
+    @staticmethod
+    def _adjust_running_avg(curr_avg, new_val, size):
+        return ((curr_avg * (size - 1)) * new_val) / size
+
+    @staticmethod
+    def _adjust_running_stddev(curr_stddev, curr_avg, new_val, size):
+        return math.sqrt(((curr_stddev ** 2 * (size - 1)) + (new_val - curr_avg) ** 2) / size)
+
+
+
+class EventMonitorTuple(EventMonitor):
+
+    def post(self, value):
+        self.raw.push(value)
+
+        if len(self.raw.array) < self.smoothness:
+            self.smooth.push(self._tupleMean(self.raw.array))
+        else:
+            self.smooth.push(self._tupleMean(self.raw.array[-1 * self.smoothness:]))
+
+        if len(self.smooth.array) < 2:
+            a = []
+            for i in range(len(value)):
+                if isinstance(value[i], int):
+                    a.append(0)
+                else:
+                    a.append(0.0)
+            self.deltas.push(tuple(a))
+        else:
+            a = []
+            for i in range(len(value)):
+                a.append(self.smooth.array[-1][i] - self.smooth.array[-2][i])
+            self.deltas.push(tuple(a))
+
+        if self.influxConn is not None and len(value) == 3 and len(self.smooth.array) > 2:
+            avg = self.deltas.getAvg()
+            stddev = self.deltas.getStdDev()
+            p = {"value_x": value[0], "smooth_x": self.smooth.array[-1][0], "delta_x": self.deltas.array[-1][0],
+                 "delta_x_avg": avg[0], "delta_x.stddev": stddev[0],
+                 "value_y": value[1], "smooth_y": self.smooth.array[-1][1], "delta_y": self.deltas.array[-1][1],
+                 "delta_y_avg": avg[1], "delta_y.stddev": stddev[1],
+                 "value_z": value[2], "smooth_z": self.smooth.array[-1][2], "delta_z": self.deltas.array[-1][2],
+                 "delta_z_avg": avg[2], "delta_z.stddev": stddev[2]}
+            self.influxConn.post(p)
+
+        if len(self.raw.array) == self.monitorSize:  # don't examine anything until we have a full rolling array
+            self.analyze(self.deltas.array[-1])
+
+    def trigger(self, value):
+        if isinstance(value, tuple):
+            avg = self.deltas.getAvg()
+            stddev = self.deltas.getStdDev()
             for i in range(len(value)):
                 if abs(avg[i] - value[i]) > (3 * stddev[i]):
                     return True
@@ -152,26 +172,37 @@ class EventMonitor:
         else:
             raise ValueError("value is not numeric")
 
-    # def quiet(self):
-    #     return self.comparer.equals(self.deltas.array[-1], self.deltas.array[-2])
+    @staticmethod
+    def _adjust_running_avg(curr_avg, new_val, size):
+        for i in range(len(new_val)):
+            curr_avg[i] = ((curr_avg[i] * (size - 1)) * new_val[i]) / size
+        return curr_avg
 
-    def publishEvent(self):
-        self.onEventOccur(shrink.shrink_num_array_to_size(self.deltas.array[self.recSize * -1:], self.shapeSize))
+    @staticmethod
+    def _adjust_running_stddev(curr_stddev, curr_avg, new_val, size):
+        for i in range(len(new_val)):
+            curr_stddev[i] = math.sqrt(((curr_stddev[i] ** 2 * (size - 1)) + (new_val[i] - curr_avg[i]) ** 2) / size)
+        return curr_stddev
 
+    @staticmethod
+    def _tupleMean(tuple_array):
+        # each item in the array must be a same size tuple
+        tuplesize = len(list(tuple_array[0]))
+        totals = []
+        for _ in range(tuplesize):
+            totals.append(0)
+        for i in range(len(tuple_array)):
+            for j in range(tuplesize):
+                totals[j] += tuple_array[i][j]
+        for j in range(tuplesize):
+            totals[j] /= len(tuple_array)
+        return tuple(totals)
 
 def _publish(shape):
     print(shape)
 
 
-def _tupleMean(tuplearray):
-    # each item in the array must be a same size tuple
-    tuplesize = len(list(tuplearray[0]))
-    totals = []
-    for _ in range(tuplesize):
-        totals.append(0)
-    for i in range(len(tuplearray)):
-        for j in range(tuplesize):
-            totals[j] += tuplearray[i][j]
-    for j in range(tuplesize):
-        totals[j] /= len(tuplearray)
-    return tuple(totals)
+
+
+
+

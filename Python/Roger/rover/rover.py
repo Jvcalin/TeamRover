@@ -59,14 +59,14 @@ class Rover:
 
         self.motion.read()
 
-        #if self.checkTimer(0):
+        # if self.checkTimer(0):
             # self.motion.read()
             # self.motion.publishSensors(self.mqtt)
             # self.PublishEvent("roger/cmd/presence/publish", "prox")  # tell the presence loop to publish its latest array
 
-        #if self.checkTimer(1):
+        # if self.checkTimer(1):
             # self.triggers.check()
-            #pass
+            # pass
 
         return self.stop
 
