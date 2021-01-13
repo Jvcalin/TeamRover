@@ -124,7 +124,7 @@ class EventMonitorTuple(EventMonitor):
 
     def post(self, value):
         self.raw.push(value)
-        print(value)
+        # print(value)
 
         tuplesize = len(value)
         if len(self.raw.array) < self.smoothness:

@@ -38,7 +38,7 @@ class Motion:
         # self.sensors["direction"].post((float(imu.pitch), float(imu.roll), float(imu.yaw)))
         # self.sensors["orientation"].post(self.getOrientationAngle(imu.yaw))
         # print([imu.accel_x, imu.accel_y, imu.accel_z, imu.gyro_x, imu.gyro_y, imu.mag_z, imu.pitch, imu.roll, imu.yaw])
-        print((float(imu.accel_x), float(imu.accel_y), float(imu.accel_z)))
+        # print((float(imu.accel_x), float(imu.accel_y), float(imu.accel_z)))
 
     def getOrientationAngle(self, val):
         return val  # * 180 / pi
