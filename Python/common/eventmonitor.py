@@ -96,11 +96,7 @@ class EventMonitor:
                 self.recSize = 1
                 self.recording = True
             else:
-                self.deltas_running_avg = self._adjust_running_avg(self.deltas_running_avg, value, self.monitorSize)
-                self.deltas_running_stddev = self._adjust_running_stddev(self.deltas_running_stddev,
-                                                                         self.deltas_running_avg,
-                                                                         value,
-                                                                         self.monitorSize)
+                self._adjust_running_avg(value, self.monitorSize)
 
     def trigger(self, value):
         if isinstance(value, int) or isinstance(value, float):
@@ -113,16 +109,18 @@ class EventMonitor:
                "shape": shrink.shrink_num_array_to_size(self.deltas.array[self.recSize * -1:], self.shapeSize)}
         self.onEventOccur(pub)
 
-    @staticmethod
-    def _adjust_running_avg(curr_avg, new_val, size):
-        return ((curr_avg * (size - 1)) * new_val) / size
-
-    @staticmethod
-    def _adjust_running_stddev(curr_stddev, curr_avg, new_val, size):
-        return math.sqrt(((curr_stddev ** 2 * (size - 1)) + (new_val - curr_avg) ** 2) / size)
+    def _adjust_running_avg(self, new_val, size):
+        self.deltas_running_avg = ((self.deltas_running_avg * (size - 1)) * new_val) / size
+        self.deltas_running_stddev = math.sqrt(((self.deltas_running_stddev ** 2 * (size - 1))
+                                                + (new_val - self.deltas_running_avg) ** 2) / size)
 
 
 class EventMonitorTuple(EventMonitor):
+
+    def __init__(self, rover_name, measure_name, size=100, stop_length=10, smoothness=50, shape_size=50):
+        self.deltas_running_avg_tuple = None
+        self.deltas_running_stddev_tuple = None
+        super().__init__(rover_name, measure_name, size, stop_length, smoothness, shape_size)
 
     def post(self, value):
         self.raw.push(value)
@@ -148,8 +146,8 @@ class EventMonitorTuple(EventMonitor):
             self.deltas.push(tuple(a))
 
         if self.influxConn is not None and len(value) == 3 and len(self.smooth.array) > 2:
-            avg = self.deltas.getAvg()
-            stddev = self.deltas.getStdDev()
+            avg = self.deltas_running_avg_tuple
+            stddev = self.deltas_running_stddev_tuple
             p = {"value_x": value[0], "smooth_x": self.smooth.array[-1][0], "delta_x": self.deltas.array[-1][0]
                  , "delta_x_avg": avg[0], "delta_x.stddev": stddev[0]
                  # , "value_y": value[1], "smooth_y": self.smooth.array[-1][1], "delta_y": self.deltas.array[-1][1]
@@ -164,8 +162,8 @@ class EventMonitorTuple(EventMonitor):
 
     def trigger(self, value):
         if isinstance(value, tuple):
-            avg = self.deltas_running_avg
-            stddev = self.deltas_running_stddev
+            avg = self.deltas_running_avg_tuple
+            stddev = self.deltas_running_stddev_tuple
             for i in range(len(value)):
                 if abs(avg[i] - value[i]) > (3 * stddev[i]):
                     print("Triggered!")
@@ -174,29 +172,27 @@ class EventMonitorTuple(EventMonitor):
         else:
             raise ValueError("value is not numeric")
 
-    @staticmethod
-    def _adjust_running_avg(curr_avg, new_val, size):
-        if isinstance(curr_avg, int):
+    def _adjust_running_avg(self, new_val, size):
+        if self.deltas_running_avg_tuple is None:
             a = []
             for j in range(len(new_val)):
                 a.append(0)
-            curr_avg = tuple(a)
+            self.deltas_running_avg_tuple = tuple(a)
         b = []
         for i in range(len(new_val)):
-            b.append(((curr_avg[i] * (size - 1)) * new_val[i]) / size)
-        return tuple(curr_avg)
+            b.append(((self.deltas_running_avg_tuple[i] * (size - 1)) * new_val[i]) / size)
+        self.deltas_running_avg_tuple = tuple(self.deltas_running_avg_tuple)
 
-    @staticmethod
-    def _adjust_running_stddev(curr_stddev, curr_avg, new_val, size):
-        if isinstance(curr_stddev, int):
+        if self.deltas_running_stddev_tuple is None:
             a = []
             for j in range(len(new_val)):
                 a.append(0)
-            curr_stddev = tuple(a)
+            self.deltas_running_stddev_tuple = tuple(a)
         b = []
         for i in range(len(new_val)):
-            b.append(math.sqrt(((curr_stddev[i] ** 2 * (size - 1)) + (new_val[i] - curr_avg[i]) ** 2) / size))
-        return tuple(curr_stddev)
+            b.append(math.sqrt(((self.deltas_running_stddev_tuple[i] ** 2 * (size - 1))
+                                + (new_val[i] - self.deltas_running_avg_tuple[i]) ** 2) / size))
+        self.deltas_running_stddev_tuple = tuple(self.deltas_running_stddev_tuple)
 
     @staticmethod
     def _tupleMean(tuple_array):
