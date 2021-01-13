@@ -122,7 +122,6 @@ class EventMonitor:
         return math.sqrt(((curr_stddev ** 2 * (size - 1)) + (new_val - curr_avg) ** 2) / size)
 
 
-
 class EventMonitorTuple(EventMonitor):
 
     def post(self, value):

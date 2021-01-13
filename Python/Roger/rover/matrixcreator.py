@@ -17,7 +17,7 @@ class Motion:
     def __init__(self, mqtt):
         arraysize = 300
         self.rover = "roger"
-        self.sensors = {"accel": ev.EventMonitor(self.rover, "accelerometer", arraysize)}
+        self.sensors = {"accel": ev.EventMonitorTuple(self.rover, "accelerometer", arraysize)}
                         # , "spin": ev.EventMonitor(self.rover, "spin", arraysize)
                         # , "mag": ev.EventMonitor(self.rover, "magnetometer", arraysize)
                         # , "direction": ev.EventMonitor(self.rover, "direction", arraysize)
