@@ -126,6 +126,7 @@ class EventMonitorTuple(EventMonitor):
         self.raw.push(value)
         print(value)
 
+        tuplesize = len(value)
         if len(self.raw.array) < self.smoothness:
             self.smooth.push(self._tupleMean(self.raw.array))
         else:
@@ -133,7 +134,7 @@ class EventMonitorTuple(EventMonitor):
 
         if len(self.smooth.array) < 2:
             a = []
-            for i in range(len(value)):
+            for i in range(tuplesize):
                 if isinstance(value[i], int):
                     a.append(0)
                 else:
@@ -141,11 +142,22 @@ class EventMonitorTuple(EventMonitor):
             self.deltas.push(tuple(a))
         else:
             a = []
-            for i in range(len(value)):
+            for i in range(tuplesize):
                 a.append(self.smooth.array[-1][i] - self.smooth.array[-2][i])
             self.deltas.push(tuple(a))
 
-        if self.influxConn is not None and len(value) == 3 and len(self.smooth.array) > 2:
+        if self.deltas_running_avg_tuple is None:
+            a = []
+            for j in range(tuplesize):
+                a.append(0)
+            self.deltas_running_avg_tuple = tuple(a)
+        if self.deltas_running_stddev_tuple is None:
+            a = []
+            for j in range(tuplesize):
+                a.append(0)
+            self.deltas_running_stddev_tuple = tuple(a)
+
+        if self.influxConn is not None and tuplesize == 3 and len(self.smooth.array) > 2:
             avg = self.deltas_running_avg_tuple
             stddev = self.deltas_running_stddev_tuple
             p = {"value_x": value[0], "smooth_x": self.smooth.array[-1][0], "delta_x": self.deltas.array[-1][0]
@@ -173,26 +185,16 @@ class EventMonitorTuple(EventMonitor):
             raise ValueError("value is not numeric")
 
     def _adjust_running_avg(self, new_val, size):
-        if self.deltas_running_avg_tuple is None:
-            a = []
-            for j in range(len(new_val)):
-                a.append(0)
-            self.deltas_running_avg_tuple = tuple(a)
         b = []
         for i in range(len(new_val)):
             b.append(((self.deltas_running_avg_tuple[i] * (size - 1)) * new_val[i]) / size)
-        self.deltas_running_avg_tuple = tuple(self.deltas_running_avg_tuple)
+        self.deltas_running_avg_tuple = tuple(b)
 
-        if self.deltas_running_stddev_tuple is None:
-            a = []
-            for j in range(len(new_val)):
-                a.append(0)
-            self.deltas_running_stddev_tuple = tuple(a)
-        b = []
+        c = []
         for i in range(len(new_val)):
-            b.append(math.sqrt(((self.deltas_running_stddev_tuple[i] ** 2 * (size - 1))
+            c.append(math.sqrt(((self.deltas_running_stddev_tuple[i] ** 2 * (size - 1))
                                 + (new_val[i] - self.deltas_running_avg_tuple[i]) ** 2) / size))
-        self.deltas_running_stddev_tuple = tuple(self.deltas_running_stddev_tuple)
+        self.deltas_running_stddev_tuple = tuple(c)
 
     @staticmethod
     def _tupleMean(tuple_array):
