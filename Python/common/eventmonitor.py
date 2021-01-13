@@ -173,15 +173,27 @@ class EventMonitorTuple(EventMonitor):
 
     @staticmethod
     def _adjust_running_avg(curr_avg, new_val, size):
+        if isinstance(curr_avg, int):
+            a = []
+            for j in range(len(new_val)):
+                a.append(0)
+            curr_avg = tuple(a)
+        b = []
         for i in range(len(new_val)):
-            curr_avg[i] = ((curr_avg[i] * (size - 1)) * new_val[i]) / size
-        return curr_avg
+            b.append(((curr_avg[i] * (size - 1)) * new_val[i]) / size)
+        return tuple(curr_avg)
 
     @staticmethod
     def _adjust_running_stddev(curr_stddev, curr_avg, new_val, size):
+        if isinstance(curr_stddev, int):
+            a = []
+            for j in range(len(new_val)):
+                a.append(0)
+            curr_stddev = tuple(a)
+        b = []
         for i in range(len(new_val)):
-            curr_stddev[i] = math.sqrt(((curr_stddev[i] ** 2 * (size - 1)) + (new_val[i] - curr_avg[i]) ** 2) / size)
-        return curr_stddev
+            b.append(math.sqrt(((curr_stddev[i] ** 2 * (size - 1)) + (new_val[i] - curr_avg[i]) ** 2) / size))
+        return tuple(curr_stddev)
 
     @staticmethod
     def _tupleMean(tuple_array):
@@ -197,11 +209,6 @@ class EventMonitorTuple(EventMonitor):
             totals[j] /= len(tuple_array)
         return tuple(totals)
 
+
 def _publish(shape):
     print(shape)
-
-
-
-
-
-
