@@ -9,5 +9,7 @@ secrets = {
     'timezone' : "America/New_York",  # http://worldtimeapi.org/timezones
     'aio_username' : 'jvcalin',
     'aio_key' : 'f823c2b2d3c2bb1a30351f7c33f159e3e07da26b',
-    'openweather_token' : '4a96a5c7467f1909c97e3451f55a6456'
+    'openweather_token' : '4a96a5c7467f1909c97e3451f55a6456',
+    'mqtt_broker' : '192.168.86.39',
+    'mqtt_broker_name' : 'Lisa',
     }
