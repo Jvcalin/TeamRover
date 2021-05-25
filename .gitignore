@@ -116,4 +116,6 @@ dmypy.json
 .pyre/
 
 # End of https://www.gitignore.io/api/python
-/Python/Roger/presence/.vs
+/Python/Lisa/presence/.vs
+Python/Percy/secrets.py
+Python/Susie/secrets.py
