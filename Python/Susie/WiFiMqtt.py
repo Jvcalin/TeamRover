@@ -10,15 +10,18 @@ import adafruit_esp32spi.adafruit_esp32spi_socket as socket
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
 import adafruit_pybadger.pygamer as pygamer
 
+try:
+    from secrets import secrets
+except ImportError:
+    print("WiFi secrets are kept in secrets.py, please add them there!")
+    raise
+
+
 class MyMqtt:
 
     def __init__(self):
         # Get wifi details and more from a secrets.py file
-        try:
-            from secrets import secrets
-        except ImportError:
-            print("WiFi secrets are kept in secrets.py, please add them there!")
-            raise
+
 
         esp32_cs = DigitalInOut(board.D13)
         esp32_ready = DigitalInOut(board.D11)
@@ -56,8 +59,7 @@ class MyMqtt:
         # Set up a MiniMQTT Client
         self.mqtt_client = MQTT.MQTT(
             broker=secrets["mqtt_broker"],
-            username=secrets["aio_username"],
-            password=secrets["aio_key"],
+            port=1883,
         )
 
         # Setup the callback methods above
@@ -66,8 +68,9 @@ class MyMqtt:
         self.mqtt_client.on_message = self.message
 
         # Connect the client to the MQTT broker.
-        print("Connecting to MQTT...")
+        print("Connecting to MQTT...Broker {0}".format(secrets["mqtt_broker_name"]))
         self.mqtt_client.connect()
+        print("Connected to broker {0}".format(secrets["mqtt_broker_name"]))
 
 
 
