@@ -1,44 +1,78 @@
 import time
-from adafruit_crickit import crickit
+import broadcast
+import sys
 
-MAX_SPEED = 2
-COUNTDOWN = 3
+try:
+    from adafruit_crickit import crickit
+    MOTORS = True
+    broadcast.send("Motors initialized")
+except ValueError:
+    MOTORS = False
+    broadcast.send("Motors not found")
 
-class MyMotors:
+MAX_SPEED = 2.0
+COUNTDOWN = 60
 
-    def __init__(self, myPrint):
-        # make two variables for the motors to make code shorter to type
-        self.mleft = crickit.dc_motor_1
-        self.mright = crickit.dc_motor_2
+# make two variables for the motors to make code shorter to type
+if MOTORS:
+    mleft = crickit.dc_motor_1
+    mright = crickit.dc_motor_2
 
-        self.print = myPrint
+lspeed = 0.0   # speed values ->  -2 to 2
+rspeed = 0.0
 
-        self.lspeed = 0 #speed values ->  -2 to 2
-        self.rspeed = 0
+countdown = 0
 
-        self.countdown = 0
 
-    def tick(self):
-        if countdown > 0: # every move command will expire after countdown goes to 0
+
+def tick():
+    if MOTORS:
+        global countdown
+        global mleft
+        global mright
+        global lspeed
+        global rspeed
+        if countdown > 0:  # every move command will expire after countdown goes to 0
             countdown -= 1
         else:
-            self.lspeed = 0
-            self.rspeed = 0
-        self.mleft.throttle = lspeed / MAX_SPEED  #throttle: 1 = full speed, 0 is stop, 0.5 is half speed, neg is rev
-        self.mright.throttle = rspeed / MAX_SPEED
+            lspeed = 0.0
+            rspeed = 0.0
+        mleft.throttle = lspeed / MAX_SPEED  # throttle: 1 = full speed, 0 is stop, 0.5 is half speed, neg is rev
+        mright.throttle = rspeed / MAX_SPEED
 
-    def move(self, left, right):
+def move(left=0.0, right=0.0, duration=COUNTDOWN):
+    if MOTORS:
+        global countdown
+        global lspeed
+        global rspeed
+        broadcast.send("Move: {:.2f}.{:.2f}".format(left, right))
         if left > MAX_SPEED:
-            self.lspeed = MAX_SPEED
+            lspeed = MAX_SPEED
         elif left < (MAX_SPEED * -1):
-            self.lspeed = MAX_SPEED * -1
+            lspeed = MAX_SPEED * -1
         else:
-            self.lspeed = left
+            lspeed = left
         if right > MAX_SPEED:
-            self.rspeed = MAX_SPEED
+            rspeed = MAX_SPEED
         elif right < (MAX_SPEED * -1):
-            self.rspeed = MAX_SPEED * -1
+            rspeed = MAX_SPEED * -1
         else:
-            self.rspeed = right
-        self.countdown = COUNTDOWN
+            rspeed = right
 
+        countdown = duration
+
+def stop():
+    broadcast.send("stop")
+    lspeed = 0.0
+    rspeed = 0.0
+    mleft.throttle = 0.0
+    mright.throttle = 0.0
+
+
+def mqttReceiveCommand(payload):
+    params = payload.strip().lower().split(',')
+    leftspeed = float(params[0].strip())
+    rightspeed = float(params[1].strip())
+    duration = float(params[2].strip())
+
+    move(leftspeed, rightspeed, duration)

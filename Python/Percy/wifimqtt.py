@@ -7,7 +7,10 @@ from adafruit_esp32spi import adafruit_esp32spi
 from adafruit_esp32spi import adafruit_esp32spi_wifimanager
 import adafruit_esp32spi.adafruit_esp32spi_socket as socket
 
-import adafruit_minimqtt.adafruit_minimqtt as MQTT
+import adafruit_minimqtt.adafruit_minimqtt as minimqtt
+
+import broadcast
+
 
 # Get wifi details and more from a secrets.py file
 try:
@@ -17,89 +20,102 @@ except ImportError:
     raise
 
 
-class MyMqtt:
+subscribes = {}
+subscribe_funcs = {}
+publishes = {}
 
-    def __init__(self, myName, myPrint):
+MQTT = False
 
-        self.name = myName
-        self.print = myPrint
-        esp32_cs = DigitalInOut(board.D13)
-        esp32_ready = DigitalInOut(board.D11)
-        esp32_reset = DigitalInOut(board.D12)
+def initialize(myName, motorFunc):
 
-        self.spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
-        self.esp = adafruit_esp32spi.ESP_SPIcontrol(self.spi, esp32_cs, esp32_ready, esp32_reset)
+    robotName = myName
+    esp32_cs = DigitalInOut(board.D13)
+    esp32_ready = DigitalInOut(board.D11)
+    esp32_reset = DigitalInOut(board.D12)
 
-        if self.esp.status == adafruit_esp32spi.WL_IDLE_STATUS:
-            self.print.print("ESP32 found and in idle mode")
+    spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
+    esp = adafruit_esp32spi.ESP_SPIcontrol(spi, esp32_cs, esp32_ready, esp32_reset)
 
-        """Use below for Most Boards"""
-        status_light = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.2)  # Uncomment for Most Boards
+    if esp.status == adafruit_esp32spi.WL_IDLE_STATUS:
+        broadcast.send("ESP32 found")
 
-        self.wifi = adafruit_esp32spi_wifimanager.ESPSPI_WiFiManager(self.esp, secrets, status_light)
+    """Use below for Most Boards"""
+    status_light = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.2)  # Uncomment for Most Boards
 
-        ### Feeds ###
-        self.status_feed = "{}/status/#".format(self.name)
-        self.motor_cmd_feed = "{}/cmd/motor".format(self.name)
-        self.beep_cmd_feed = "{}/cmd/beep".format(self.name)
-        self.servo_cmd_feed = "{}/cmd/servo".format(self.name)
+    wifi = adafruit_esp32spi_wifimanager.ESPSPI_WiFiManager(esp, secrets, status_light)
 
-        # Connect to WiFi
-        self.print.print("Connecting to WiFi...")
-        self.wifi.connect()
-        self.print.print("Connected!")
+    ### Feeds ###
+    publishes["status"] = "{}/status".format(robotName)
+    subscribes["motor"] = "{}/cmd/motor".format(robotName)
+    subscribe_funcs["{}/cmd/motor".format(robotName)] = motorFunc
+    subscribes["beep"] = "{}/cmd/beep".format(robotName)
+    subscribes["servo"] = "{}/cmd/servo".format(robotName)
 
-        # Initialize MQTT interface with the esp interface
-        MQTT.set_socket(socket, self.esp)
-
-        # Set up a MiniMQTT Client
-        self.mqtt_client = MQTT.MQTT(
-            broker=secrets["mqtt_broker"],
-            port=1883,
-        )
-
-        # Setup the callback methods above
-        self.mqtt_client.on_connect = self.connected
-        self.mqtt_client.on_disconnect = self.disconnected
-        self.mqtt_client.on_message = self.message
-
-        # Connect the client to the MQTT broker.
-        self.print.print("Connecting to MQTT...")
-        self.mqtt_client.connect()
+    # Connect to WiFi
+    broadcast.send("Connecting to WiFi...")
+    try:
+        wifi.connect()
+        broadcast.send("Connected!")
+    except:
+        broadcast.send("Could not connect")
+        raise
 
 
+    # Initialize MQTT interface with the esp interface
+    minimqtt.set_socket(socket, esp)
 
-    ### Code ###
+    # Set up a MiniMQTT Client
+    global mqtt_client
+    mqtt_client = minimqtt.MQTT(
+        broker=secrets["mqtt_broker"],
+        port=1883,
+    )
 
-    # Define callback methods which are called when events occur
-    # pylint: disable=unused-argument, redefined-outer-name
-    def connected(self, client, userdata, flags, rc):
-        # This function will be called when the client is connected
-        # successfully to the broker.
-        self.print.print("Connected to {0}! Listening for topic changes on {1}".format(secrets["mqtt_broker"], self.status_feed))
-        # Subscribe to all changes on the onoff_feed.
-        client.subscribe(self.status_feed)
+    # Setup the callback methods above
+    mqtt_client.on_connect = connected
+    mqtt_client.on_disconnect = disconnected
+    mqtt_client.on_message = message
+
+    # Connect the client to the MQTT broker.
+    broadcast.send("Connecting to MQTT Broker {}...".format(secrets["mqtt_broker_name"]))
+    mqtt_client.connect()
+
+    broadcast.send("MQTT initialized")
+    global MQTT
+    MQTT = True
+
+### Code ###
+
+# Define callback methods which are called when events occur
+# pylint: disable=unused-argument, redefined-outer-name
+def connected(client, userdata, flags, rc):
+    # This function will be called when the client is connected
+    # successfully to the broker.
+    for item in subscribes:
+        client.subscribe(subscribes[item])
+        broadcast.send("Connected to {0}! Listening for topic changes on {1}".format(secrets["mqtt_broker"], subscribes[item]))
+
+def disconnected(client, userdata, rc):
+    # This method is called when the client is disconnected
+    broadcast.send("Disconnected from {}!".format(secrets["mqtt_broker_name"]))
 
 
-    def disconnected(self, client, userdata, rc):
-        # This method is called when the client is disconnected
-        self.print.print("Disconnected from {}!".format(secrets["mqtt_broker_name"]))
+def message(client, topic, message):
+    # This method is called when a topic the client is subscribed to
+    # has a new message.
+    broadcast.send("New message on topic {0}: {1}".format(topic, message))
+    subscribe_funcs[topic](message)
+
+def checkMessages():
+    # Poll the message queue
+    mqtt_client.loop()
 
 
-    def message(self, client, topic, message):
-        # This method is called when a topic the client is subscribed to
-        # has a new message.
-        self.print.print("New message on topic {0}: {1}".format(topic, message))
-
-
-    def checkMessages(self):
-        # Poll the message queue
-        self.mqtt_client.loop()
-
-
-    def publishMessage(self, feed, message):
-        self.print.print("Sending message to {0}: {1}".format(feed, message))
-        self.mqtt_client.publish(feed, message)
+def publishMessage(message, feed=None):
+    if feed == None:
+        feed = publishes["status"]
+    # self.print.print("Sending message to {0}: {1}".format(feed, message))
+    mqtt_client.publish(feed, message)
 
 
 """

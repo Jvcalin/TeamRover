@@ -119,3 +119,4 @@ dmypy.json
 /Python/Lisa/presence/.vs
 Python/Percy/secrets.py
 Python/Susie/secrets.py
+*.secrets.py

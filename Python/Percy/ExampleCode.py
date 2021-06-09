@@ -131,6 +131,18 @@ while True:
     time.sleep(1.0)
 
 
+import time
+import board
+from adafruit_apds9960.apds9960 import APDS9960
+
+i2c = board.I2C()
+apds = APDS9960(i2c)
+
+apds.enable_proximity = True
+
+while True:
+    print(apds.proximity)
+    time.sleep(0.2)
 
 
 
@@ -138,6 +150,117 @@ while True:
 """
 ACCELEROMETER
 """
+import time
+import board
+import adafruit_pct2075
+
+i2c = board.I2C()  # uses board.SCL and board.SDA
+pct = adafruit_pct2075.PCT2075(i2c)
+
+while True:
+    print("Temperature: %.2f C" % pct.temperature)
+    time.sleep(0.5)
+
+
+# SPDX-FileCopyrightText: Copyright (c) 2020 Bryan Siepert for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
+import time
+import board
+from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
+
+i2c = board.I2C()  # uses board.SCL and board.SDA
+sensor = LSM6DSOX(i2c)
+
+while True:
+    print("Acceleration: X:%.2f, Y: %.2f, Z: %.2f m/s^2" % (sensor.acceleration))
+    print("Gyro X:%.2f, Y: %.2f, Z: %.2f radians/s" % (sensor.gyro))
+    print("")
+    time.sleep(0.5)
+
+
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
+""" Display magnetometer data once per second """
+
+import time
+import board
+import adafruit_lis3mdl
+
+i2c = board.I2C()  # uses board.SCL and board.SDA
+sensor = adafruit_lis3mdl.LIS3MDL(i2c)
+
+while True:
+    mag_x, mag_y, mag_z = sensor.magnetic
+
+    print("X:{0:10.2f}, Y:{1:10.2f}, Z:{2:10.2f} uT".format(mag_x, mag_y, mag_z))
+    print("")
+    time.sleep(1.0)
+
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
+""" Display compass heading data five times per second """
+import time
+from math import atan2, degrees
+import board
+import adafruit_lis3mdl
+
+i2c = board.I2C()  # uses board.SCL and board.SDA
+sensor = adafruit_lis3mdl.LIS3MDL(i2c)
+
+
+def vector_2_degrees(x, y):
+    angle = degrees(atan2(y, x))
+    if angle < 0:
+        angle += 360
+    return angle
+
+
+def get_heading(_sensor):
+    magnet_x, magnet_y, _ = _sensor.magnetic
+    return vector_2_degrees(magnet_x, magnet_y)
+
+
+while True:
+    print("heading: {:.2f} degrees".format(get_heading(sensor)))
+    time.sleep(0.2)
+
+
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
+import time
+import board
+from adafruit_lsm6ds.lsm6dsox import LSM6DSOX as LSM6DS
+
+# To use LSM6DS33, comment out the LSM6DSOX import line
+# and uncomment the next line
+# from adafruit_lsm6ds.lsm6ds33 import LSM6DS33 as LSM6DS
+
+# To use ISM330DHCX, comment out the LSM6DSOX import line
+# and uncomment the next line
+# from adafruit_lsm6ds.lsm330dhcx import ISM330DHCX as LSM6DS
+
+from adafruit_lis3mdl import LIS3MDL
+
+i2c = board.I2C()  # uses board.SCL and board.SDA
+accel_gyro = LSM6DS(i2c)
+mag = LIS3MDL(i2c)
+
+while True:
+    acceleration = accel_gyro.acceleration
+    gyro = accel_gyro.gyro
+    magnetic = mag.magnetic
+    print(
+        "Acceleration: X:{0:7.2f}, Y:{1:7.2f}, Z:{2:7.2f} m/s^2".format(*acceleration)
+    )
+    print("Gyro          X:{0:7.2f}, Y:{1:7.2f}, Z:{2:7.2f} rad/s".format(*gyro))
+    print("Magnetic      X:{0:7.2f}, Y:{1:7.2f}, Z:{2:7.2f} uT".format(*magnetic))
+    print("")
+    time.sleep(0.5)
+
 
 
 """
@@ -188,4 +311,3 @@ splash.append(text_area)
 
 while True:
     pass
-
