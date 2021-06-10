@@ -1,7 +1,6 @@
 import WiFiMqtt as network
 import gamer_buttons as gamer
 import time
-import display
 
 # Setup
 # network.setupConnections()
