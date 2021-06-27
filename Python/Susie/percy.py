@@ -2,6 +2,10 @@ import robot
 # colors CRIMSON rgb(220,20,60) #DC143C
 
 
+def apply_dir(message, op1, op2):
+    return message[0] * op1, message[1] * op2, message[2]
+
+
 class Percy(robot.Robot):
 
     def __init__(self):
@@ -28,40 +32,42 @@ class Percy(robot.Robot):
                 pass
             else:
                 self.counter = 0
-                self.fire_command()
+                self.fire_command()  # fire if joystick goes to neutral
+                self.speed = 0
+                self.prev_dir = 0
         else:
             if self.prev_dir == self.direction:
                 self.counter += 1
+                if self.counter > 60:
+                    self.counter = 0
+                    self.fire_command()  # fire if held down for 60+ ticks (1 sec)
             else:
                 self.counter = 0
-                self.fire_command()
-        self.prev_dir = self.direction
+                self.fire_command()  # fire if direction changes
+            self.prev_dir = self.direction
 
     def fire_command(self):
         if self.mode == "motor":
-            message = (self.speed,self.speed,self.counter)
+            message = (self.speed, self.speed, self.counter)
             if self.direction == 1:
-                message = self.applydir(message, 1, 1)
+                message = apply_dir(message, 1, 1)
             elif self.direction == 2:
-                message = self.applydir(message, 1, 0.75)
+                message = apply_dir(message, 1, 0.75)
             elif self.direction == 3:
-                message = self.applydir(message, 1, -1)
+                message = apply_dir(message, 1, -1)
             elif self.direction == 4:
-                message = self.applydir(message, -1, -0.75)
+                message = apply_dir(message, -1, -0.75)
             elif self.direction == 5:
-                message = self.applydir(message, -1, -1)
+                message = apply_dir(message, -1, -1)
             elif self.direction == 6:
-                message = self.applydir(message, -0.75, -1)
+                message = apply_dir(message, -0.75, -1)
             elif self.direction == 7:
-                message = self.applydir(message, -1, 1)
+                message = apply_dir(message, -1, 1)
             elif self.direction == 8:
-                message = self.applydir(message, 0.75, 1)
+                message = apply_dir(message, 0.75, 1)
             else:
-                message = self.applydir(message, 0, 0)
+                message = apply_dir(message, 0, 0)
         else:
             message = ""
         self.mqtt.publish(self.feeds[self.mode], message)
-
-    def applydir(self, message, op1, op2):
-        return message[0] * op1, message[1] * op2, message[2]
 
