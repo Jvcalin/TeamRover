@@ -1,23 +1,28 @@
-import WiFiMqtt as network
+#import WiFiMqtt as network
 import gamer_buttons as gamer
 import time
 import display
 
 # Setup
 # network.setupConnections()
-mqtt = network.MyMqtt()
-device = gamer.MyPyGamer(mqtt)
+# mqtt = network.MyMqtt()
+# device = gamer.MyPyGamer(mqtt)
+gamer.initialize()
 print("Setup complete.")
-mqtt.publishMessage("roger/status/feather","Susan has connected to Roger")
+
 
 # Main Loop
-interval = 5
+interval = 1/60
 counter = 0
 while True:
+    """
     if counter > interval:
         mqtt.checkMessages()
         counter = 0
     else:
         counter = counter + 1
-    device.checkButtons()
-    time.sleep(0.2)
+    """
+    gamer.checkButtons()
+    time.sleep(interval)  # Aiming for 60 cycles per second
+
+

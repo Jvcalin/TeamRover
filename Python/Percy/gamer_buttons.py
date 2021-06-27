@@ -1,5 +1,6 @@
 # Buttons
 from adafruit_pybadger import pygamer
+import WiFiMqtt
 
 #https://circuitpython.readthedocs.io/projects/pybadger/en/latest/
 
@@ -8,8 +9,8 @@ from adafruit_pybadger import pygamer
 # down - reverse
 # left/right - spin left/right
 # center - stop
-# up+left/right - swerve left/right 
-# back+left/right - swerve left/right 
+# up+left/right - swerve left/right
+# back+left/right - swerve left/right
 
 # a - go faster
 # b - go slower
@@ -40,8 +41,8 @@ class MyPyGamer():
             "selectbutton": 0
         }
         self.mode = "motor"
-        self.pygamerNeoPixels().fill(GREEN)
-        self.pygamerNeoPixels().brightness = 0.2
+        self.pygamerNeoPixels().fill(RED)
+        self.pygamerNeoPixels().brightness = 0.02
 
     def pygamerNeoPixels(self):
         return self.me.pixels
@@ -163,4 +164,3 @@ class MyPyGamer():
             self.direction("reset")
             self.mode = "motor"
             self.pygamerNeoPixels().fill(GREEN)
-

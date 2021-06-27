@@ -7,9 +7,9 @@ from adafruit_display_shapes.triangle import Triangle
 
 #TFT Display Size = 160x128
 
-display = board.DISPLAY
-
 """
+screen = displayio.Group(max_size=25)
+
 # define the controls
 rect = RoundRect(30, 30, 100, 68, 5, fill=0x0, outline=0xFFFFFF, stroke=1)
 screen.append(rect)
@@ -41,7 +41,7 @@ display.show(screen)
 """
 
 
-def show(up, down, left, right, robot, line1, line1highlight, line2, line2highlight):
+def draw_screen(robotname, mode, up, down, left, right):
     screen = displayio.Group(max_size=25)
 
     # define the controls
@@ -72,33 +72,42 @@ def show(up, down, left, right, robot, line1, line1highlight, line2, line2highli
         righttriangle = Triangle(157, 64, 134, 40, 134, 86, outline=0x2F4F4F)
     screen.append(righttriangle)
 
-    robot_name_text = label.Label(terminalio.FONT, text=robot, color=0xDC143C)
+    if robotname == "Percy":
+        color = 0xDC143C
+    elif robotname == "Roger":
+        color = 0x00BFFF
+    else:
+        color = 0xFFFFFF
+    robot_name_text = label.Label(terminalio.FONT, text=robotname, color=color)
     robot_name_text.x = 65
     robot_name_text.y = 45
     screen.append(robot_name_text)
 
-    if line1highlight:
-        newline1 = "[{0}]".format(line1)
+    if mode == "motors":
+        mode1_text = label.Label(terminalio.FONT, text="[motors]", color=0xDCDCDC)
     else:
-        newline1 = line1
-    mode1_text = label.Label(terminalio.FONT, text=newline1, color=0xDCDCDC)
+        mode1_text = label.Label(terminalio.FONT, text="motors", color=0xDCDCDC)
     mode1_text.x = 60
     mode1_text.y = 66
     screen.append(mode1_text)
 
-    if line2highlight:
-        newline2 = "[{0}]".format(line2)
+    if mode == "servos":
+        mode2_text = label.Label(terminalio.FONT, text="[servos]", color=0xC0C0C0)
     else:
-        newline2 = line2
-    mode2_text = label.Label(terminalio.FONT, text=newline2, color=0xC0C0C0)
+        mode2_text = label.Label(terminalio.FONT, text="servos", color=0xC0C0C0)
     mode2_text.x = 65
     mode2_text.y = 83
     screen.append(mode2_text)
 
+    global display
     display.show(screen)
 
-"""
 
+display = board.DISPLAY
+draw_screen("Robot","motors",True,False,True,False)
+
+
+"""
 # Set text, font, and color
 text = "HELLO WORLD"
 font = terminalio.FONT
@@ -117,6 +126,4 @@ display.show(text_area)
 # Loop forever to prevent code from exiting
 #while True:
 #    pass
-
-
 """

@@ -8,7 +8,8 @@ from adafruit_esp32spi import adafruit_esp32spi_wifimanager
 import adafruit_esp32spi.adafruit_esp32spi_socket as socket
 
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
-#import adafruit_pybadger.pygamer as pygamer
+
+# import adafruit_pybadger.pygamer as pygamer
 
 # Get wifi details and more from a secrets.py file
 try:
@@ -20,8 +21,7 @@ except ImportError:
 
 class MyMqtt:
 
-    def __init__(self):
-
+    def __init__(self, name, status_light):
         esp32_cs = DigitalInOut(board.D13)
         esp32_ready = DigitalInOut(board.D11)
         esp32_reset = DigitalInOut(board.D12)
@@ -34,24 +34,18 @@ class MyMqtt:
         print("Firmware vers.", self.esp.firmware_version)
         print("MAC addr:", [hex(i) for i in self.esp.MAC_address])
 
-        """Use below for Most Boards"""
-        # status_light = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.2)  # Uncomment for Most Boards
-
-        self.status_light = None # pygamer.pygamerNeoPixels
+        self.status_light = status_light  # pygamer.pygamerNeoPixels
 
         self.wifi = adafruit_esp32spi_wifimanager.ESPSPI_WiFiManager(self.esp, secrets, self.status_light)
 
         ### Feeds ###
-        # self.status_feed = "roger/status/#"
-        # self.motor_cmd_feed = "roger/cmd/feather/motor"
-        # self.beep_cmd_feed = "roger/cmd/feather/beep"
-        # self.servo_cmd_feed = "roger/cmd/feather/servo"
+        self.name = name
+        self.status_feed = "{0}/status/#".format(name)
 
         # Connect to WiFi
         print("Connecting to WiFi...")
         self.wifi.connect()
         print("Connected!")
-        self.publishMessage("susie/status", "Susie has connected to Lisa")
 
         # Initialize MQTT interface with the esp interface
         MQTT.set_socket(socket, self.esp)
@@ -71,18 +65,14 @@ class MyMqtt:
         print("Connecting to MQTT...Broker {0}".format(secrets["mqtt_broker_name"]))
         self.mqtt_client.connect()
         print("Connected to broker {0}".format(secrets["mqtt_broker_name"]))
-
-
-
-    ### Code ###
+        self.publishMessage(self.status_feed, "{0} has connected to {1}".format(name, secrets["mqtt_broker_name"]))
 
     # Define callback methods which are called when events occur
     # pylint: disable=unused-argument, redefined-outer-name
     def connected(self, client, userdata, flags, rc):
         # This function will be called when the client is connected
         # successfully to the broker.
-        print("Connected to {0}! Listening for topic changes on {1}".format(secrets["mqtt_broker"], self.status_feed))
-        # Subscribe to all changes on the onoff_feed.
+        print("Connected to {0}!".format(secrets["mqtt_broker"]))
         # client.subscribe(self.status_feed)
 
     def disconnected(self, client, userdata, rc):
@@ -103,52 +93,3 @@ class MyMqtt:
         self.mqtt_client.publish(feed, message)
 
 
-"""
-photocell_val = 0
-while True:
-    # Poll the message queue
-    mqtt_client.loop()
-
-    # Send a new message
-    print("Sending photocell value: %d..." % photocell_val)
-    mqtt_client.publish(photocell_feed, photocell_val)
-    print("Sent!")
-    photocell_val += 1
-    time.sleep(1)
-"""
-
-
-"""
-//Topics
-
-//PUBLISH
-//roger/status
-//roger/status/feather
-//roger/status/matrix
-//roger/sensors/feather/proxf
-//roger/sensors/feather/proxb
-//roger/sensors/feather/proxl
-//roger/sensors/feather/proxr
-//roger/sensors/feather/motorspeed
-//roger/sensors/feather/motoraction
-//roger/sensors/feather/servohpos
-//roger/sensors/feather/servovpos
-//roger/sensors/feather/bump
-//roger/sensors/feather/vib
-//roger/sensors/feather/charging
-//roger/sensors/feather/batt
-//roger/sensors/feather/power
-
-//SUBSCRIBE
-//roger/cmd/feather/beep => "swoopup"
-//roger/cmd/feather/motor => "forward"
-//roger/cmd/feather/servo => "h,v"
-
-//LOGGING
-//cyke/telegraf/cmd
-//cyke/telegraf/sensor
-//cyke/telegraf/status
-
-InfluxDb Format:
-weather location="us",sensor="temp" temperature=78.1,humidity=23.1,description="wet",rain=true
-"""
