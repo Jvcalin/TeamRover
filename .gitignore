@@ -120,3 +120,8 @@ dmypy.json
 Python/Percy/secrets.py
 Python/Susie/secrets.py
 *.secrets.py
+
+# Visual Studio Ignores
+/dotnet/RoverCommandCenter/.vs/RoverCommandCenter
+/dotnet/RoverCommandCenter/RoverCommandCenter/obj
+/dotnet/RoverCommandCenter/RoverCommandCenter/bin/Debug/net6.0
