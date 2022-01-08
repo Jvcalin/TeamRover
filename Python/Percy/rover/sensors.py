@@ -1,9 +1,11 @@
 import time
 import board
 import broadcast
-from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
 import adafruit_vl53l0x
 from adafruit_apds9960.apds9960 import APDS9960
+from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
+import trigger
+import proximity
 
 i2c = board.I2C()
 apds = APDS9960(i2c)
@@ -57,12 +59,43 @@ apds = APDS9960(i2c)
 
 apds.enable_proximity = True
 
+motors = None
+
 def tick():
-    broadcast.send("Acceleration: X:%.2f, Y: %.2f, Z: %.2f m/s^2" % (sensor.acceleration))
-    # broadcast.send("Gyro X:%.2f, Y: %.2f, Z: %.2f radians/s" % (sensor.gyro))
     # broadcast.send("Range: {0}mm".format(vl53.range))
     # broadcast.send("Proximity: {0}".format(apds.proximity))
     # broadcast.send(int(apds.proximity))
-    #broadcast.send("")
-    #time.sleep(0.5)
+    # broadcast.send("")
+    # time.sleep(0.5)
+    proximity.push_value(vl53.range)
+    broadcast.send(f"Range: {proximity.get_value():.2f}")
+    check_triggers()
+
+def check_triggers():
+    for t in triggers:
+        if t.check():
+            t.do()
+
+
+class ForwardCollisionTrigger(trigger):
+
+    def check(self):
+        return vl53.range < 5  # in mm -> trigger: tof too close
+
+    def do(self):
+        motors.stop()
+        broadcast.send("ForwardCollisionTrigger")
+
+
+class BackwardCollisionTrigger(trigger):
+
+    def check(self):
+        return apds > 1024  # trigger: apds detects object in front of it
+
+    def do(self):
+        motors.stop()
+        broadcast.send("BackwardCollisionTrigger")
+
+triggers = [ForwardCollisionTrigger()]
+
 

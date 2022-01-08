@@ -40,7 +40,7 @@ class MyMqtt:
 
         ### Feeds ###
         self.name = name
-        self.status_feed = "{0}/status/#".format(name)
+        self.status_feed = "{0}/status".format(name)
 
         # Connect to WiFi
         print("Connecting to WiFi...")
@@ -65,7 +65,7 @@ class MyMqtt:
         print("Connecting to MQTT...Broker {0}".format(secrets["mqtt_broker_name"]))
         self.mqtt_client.connect()
         print("Connected to broker {0}".format(secrets["mqtt_broker_name"]))
-        self.publishMessage(self.status_feed, "{0} has connected to {1}".format(name, secrets["mqtt_broker_name"]))
+        self.publish_message(self.status_feed, "{0} has connected to {1}".format(name, secrets["mqtt_broker_name"]))
 
     # Define callback methods which are called when events occur
     # pylint: disable=unused-argument, redefined-outer-name
@@ -84,12 +84,11 @@ class MyMqtt:
         # has a new message.
         print("New message on topic {0}: {1}".format(topic, message))
 
-    def checkMessages(self):
+    def check_messages(self):
         # Poll the message queue
         self.mqtt_client.loop()
 
-    def publishMessage(self, feed, message):
+    def publish_message(self, feed, message):
         print("Sending message to {0}: {1}".format(feed, message))
-        self.mqtt_client.publish(feed, message)
-
+        self.mqtt_client.publish(feed, f"{message[0]},{message[1]},{message[2]}")
 

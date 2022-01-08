@@ -45,7 +45,7 @@ def move(left=0.0, right=0.0, duration=COUNTDOWN):
         global countdown
         global lspeed
         global rspeed
-        broadcast.send("Move: {:.2f}.{:.2f}".format(left, right))
+        broadcast.send(f"Move: {left:.2f}.{right:.2f}")
         if left > MAX_SPEED:
             lspeed = MAX_SPEED
         elif left < (MAX_SPEED * -1):

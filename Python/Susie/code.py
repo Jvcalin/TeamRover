@@ -1,5 +1,5 @@
 #import WiFiMqtt as network
-import gamer_buttons as gamer
+import gamer
 import time
 import display
 
@@ -7,12 +7,13 @@ import display
 # network.setupConnections()
 # mqtt = network.MyMqtt()
 # device = gamer.MyPyGamer(mqtt)
-gamer.initialize()
+# gamer.initialize()
 print("Setup complete.")
+display.show(False, False, False, False, "Percy", "Motors", True, "Servos", False)
 
 
 # Main Loop
-interval = 1/60
+interval = 1/10
 counter = 0
 while True:
     """
@@ -22,7 +23,6 @@ while True:
     else:
         counter = counter + 1
     """
-    gamer.checkButtons()
-    time.sleep(interval)  # Aiming for 60 cycles per second
-
+    gamer.check_buttons()
+    time.sleep(interval)
 

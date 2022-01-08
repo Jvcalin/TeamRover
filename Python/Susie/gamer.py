@@ -5,15 +5,26 @@ import percy
 import roger
 import wifi_mqtt
 
-robot = None
+def refresh():
+    display.show(device.button.up, device.button.down, device.button.left, device.button.right, robot.name, "motors", robot.mode == "motor", "servos", robot.mode == "servo")
+
 device = pygamer.pygamer
-myMqtt = wifi_mqtt.MyMqtt("susie", device.pygamerNeoPixels)
-percy = percy.Percy(myMqtt)
-roger = roger.Roger(myMqtt)
+myMqtt = wifi_mqtt.MyMqtt("susie", device.pixels)
+percy = percy.Percy(myMqtt, refresh)
+roger = roger.Roger(myMqtt, refresh)
+
+robot = percy
+
+start_button = False
+select_button = False
+
+
 
 def check_buttons():
+    global robot
+    global start_button
+    global select_button
     if robot != None:
-        display.show(device.button.up, device.button.down, device.button.left, device.button.right, robot.name, "motors", robot.mode == "motor", "servos", robot.mode == "servo")
         if device.button.up and device.button.left:
             robot.upleft()
         elif device.button.up and device.button.right:
@@ -44,24 +55,27 @@ def check_buttons():
             robot.b_up()
 
         if device.button.start:
-            robot.start_press()
+            start_button = True
         else:
-            robot.start_up()
+            if start_button:
+                start_button = False
+                toggle_robot()
 
         if device.button.select:
-            robot.select_press()
+            select_button = True
         else:
-            robot.select_up()
+            if select_button:
+                select_button = False
+                select_button = False
+                robot.toggle_mode()
+
 
 def toggle_robot():
     global robot
     if robot is None:
         robot = percy
-
-    if robot.name == "Percy":
+    elif robot.name == "Percy":
         robot = roger
     else:
         robot = percy
-
-
 

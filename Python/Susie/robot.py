@@ -3,12 +3,13 @@
 
 class Robot:
 
-    def __init__(self, mqtt):
+    def __init__(self, mqtt, refresh_func):
         self.mode = "motor"
         self.direction = 0
         self.a = False
         self.b = False
         self.mqtt = mqtt
+        self.refresh = refresh_func
 
     def up(self):
         self.direction = 1
@@ -70,4 +71,3 @@ class Robot:
 
     def tick(self):
         pass
-

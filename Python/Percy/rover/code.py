@@ -2,10 +2,12 @@ import time
 import broadcast
 import wifimqtt as mqtt
 import motors
-
+import motion
 # import servos
 import sensors
-# import motion
+sensors.motors = motors
+
+
 
 # Setup
 mqtt.initialize("Percy", motors.mqttReceiveCommand)
@@ -17,17 +19,23 @@ broadcast.send("Setup complete.")
 def quickLoop():
     motors.tick()
     sensors.tick()
+    motion.tick()
 
 
 def slowLoop():
     mqtt.checkMessages()
+    motion.publish_readings()
 
+def to_seconds(nanoseconds):
+    return nanoseconds/nanosecsPerSec
+    
 
 # Main Loop
 # Each loop iteration is 1 second
-# The internal loop is 60 cycles
-cyclesPerSecond = 60
-cycleTime_ns = 1000000000/cyclesPerSecond
+# The internal loop is 50 cycles
+nanosecsPerSec = 1000000000
+cyclesPerSecond = 50
+cycleTime_ns = nanosecsPerSec/cyclesPerSecond
 counter = 0
 broadcast.send("Starting Loop...")
 while True:
@@ -37,10 +45,12 @@ while True:
         quickLoop()
         tt = time.monotonic_ns() - t
         if cycleTime_ns > tt:
-            time.sleep((cycleTime_ns - tt)/1000000000)
+            time.sleep(to_seconds((cycleTime_ns - tt)))
     counter += 1
+    t2 = time.monotonic_ns()
     slowLoop()
-    broadcast.send("{}: {:.2f} sec".format(counter, (time.monotonic_ns() - t1)/1000000000))
+    broadcast.send(f"{counter}: {to_seconds(time.monotonic_ns() - t1):.2f} sec -> {to_seconds(time.monotonic_ns() - t2):.2f} sec")
+
 
 """
 import time
