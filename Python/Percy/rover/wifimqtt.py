@@ -77,7 +77,7 @@ def initialize(myName, motorFunc):
     mqtt_client.on_message = message
 
     # Connect the client to the MQTT broker.
-    broadcast.send(f"Connecting to MQTT Broker {secrets['mqtt_broker_name']}...")
+    broadcast.send("Connecting to MQTT Broker {}...".format(secrets["mqtt_broker_name"]))
     mqtt_client.connect()
 
     broadcast.send("MQTT initialized")
@@ -93,7 +93,7 @@ def connected(client, userdata, flags, rc):
     # successfully to the broker.
     for item in subscribes:
         client.subscribe(subscribes[item])
-        broadcast.send(f"Connected to {secrets['mqtt_broker']}! Listening for topic changes on {subscribes[item]}")
+        broadcast.send("Connected to {0}! Listening for topic changes on {1}".format(secrets["mqtt_broker"], subscribes[item]))
 
 def disconnected(client, userdata, rc):
     # This method is called when the client is disconnected

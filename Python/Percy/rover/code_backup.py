@@ -1,17 +1,14 @@
 import time
 import broadcast
-# import wifimqtt as mqtt
+import wifimqtt as mqtt
 import motors
-import WiFi
 
 # import servos
 import sensors
 # import motion
-import triggers
 
 # Setup
-# mqtt.initialize("Percy", motors.mqttReceiveCommand)
-# WiFi.initialize(motors.receive_command)
+mqtt.initialize("Percy", motors.mqttReceiveCommand)
 
 broadcast.send("Setup complete.")
 # mqtt.publishMessage("roger/status/feather", "Susan has connected to Roger")
@@ -19,15 +16,11 @@ broadcast.send("Setup complete.")
 
 def quickLoop():
     motors.tick()
-    sensors.tick()
-    triggers.tick()
-    # pass
+    # sensors.tick()
 
 
 def slowLoop():
-    # mqtt.checkMessages()
-    WiFi.tick()
-    # pass
+    mqtt.checkMessages()
 
 def to_seconds(nanoseconds):
     return nanoseconds/nanosecsPerSec
@@ -40,30 +33,19 @@ nanosecsPerSec = 1000000000
 cyclesPerSecond = 50
 cycleTime_ns = nanosecsPerSec/cyclesPerSecond
 counter = 0
-ctr2 = 0
 broadcast.send("Starting Loop...")
-"""
 while True:
-    t = time.monotonic_ns()
+    t1 = time.monotonic_ns()
     for i in range(cyclesPerSecond):
+        t = time.monotonic_ns()
         quickLoop()
+        tt = time.monotonic_ns() - t
+        if cycleTime_ns > tt:
+            time.sleep(to_seconds((cycleTime_ns - tt)))
     counter += 1
+    t2 = time.monotonic_ns()
     slowLoop()
-    tt = time.monotonic_ns() - t
-    if nanosecsPerSec > tt:
-        time.sleep(to_seconds(nanosecsPerSec - tt))
-    broadcast.send(f"{counter}: {to_seconds(time.monotonic_ns() - t):.2f} sec -> {to_seconds(tt):.2f} sec")
-"""
-
-while True:
-    t = time.monotonic_ns()
-    ctr2 += 1
-    slowLoop()
-    while (time.monotonic_ns() - t) < nanosecsPerSec:
-        quickLoop()
-        counter += 1
-    broadcast.send(f"{ctr2}: {to_seconds(time.monotonic_ns() - t):.2f} sec -> {counter} iterations")
-    counter = 0
+    broadcast.send(f"{counter}: {to_seconds(time.monotonic_ns() - t1):.2f} sec -> {to_seconds(time.monotonic_ns() - t2):.2f} sec")
 
 
 

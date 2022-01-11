@@ -45,7 +45,7 @@ def move(left=0.0, right=0.0, duration=COUNTDOWN):
         global countdown
         global lspeed
         global rspeed
-        broadcast.send(f"Move: {left:.2f}.{right:.2f}")
+        broadcast.send("Move: {:.2f}.{:.2f}".format(left, right))
         if left > MAX_SPEED:
             lspeed = MAX_SPEED
         elif left < (MAX_SPEED * -1):
@@ -62,17 +62,27 @@ def move(left=0.0, right=0.0, duration=COUNTDOWN):
         countdown = duration
 
 def stop():
+    global countdown
     broadcast.send("stop")
     lspeed = 0.0
     rspeed = 0.0
     mleft.throttle = 0.0
     mright.throttle = 0.0
+    countdown = 0
 
 
-def mqttReceiveCommand(payload):
+def receive_command(payload):
     params = payload.strip().lower().split(',')
-    leftspeed = float(params[0].strip())
-    rightspeed = float(params[1].strip())
-    duration = float(params[2].strip())
+    print(params)
+    cmd = params[0].strip()
+    leftspeed = float(params[1].strip())
+    rightspeed = float(params[2].strip())
+    duration = float(params[3].strip())
 
     move(leftspeed, rightspeed, duration)
+
+def is_moving_forward():
+    return lspeed > 0 and rspeed > 0
+
+def is_moving_backward():
+    return lspeed < 0 and rspeed < 0

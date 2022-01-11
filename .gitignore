@@ -124,4 +124,4 @@ Python/Susie/secrets.py
 # Visual Studio Ignores
 /dotnet/RoverCommandCenter/.vs/RoverCommandCenter
 /dotnet/RoverCommandCenter/RoverCommandCenter/obj
-/dotnet/RoverCommandCenter/RoverCommandCenter/bin/Debug/net6.0
+/dotnet/RoverCommandCenter/RoverCommandCenter/bin
