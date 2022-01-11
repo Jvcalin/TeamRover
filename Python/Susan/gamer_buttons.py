@@ -1,5 +1,6 @@
 # Buttons
 from adafruit_pybadger import pygamer
+import WiFiMqtt
 
 #https://circuitpython.readthedocs.io/projects/pybadger/en/latest/
 

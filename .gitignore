@@ -17,7 +17,7 @@ __pycache__/
 *$py.class
 
 # C extensions
-*.so
+# *.so
 
 # Distribution / packaging
 .Python
@@ -116,4 +116,12 @@ dmypy.json
 .pyre/
 
 # End of https://www.gitignore.io/api/python
-/Python/Roger/presence/.vs
+/Python/Lisa/presence/.vs
+Python/Percy/secrets.py
+Python/Susie/secrets.py
+*.secrets.py
+
+# Visual Studio Ignores
+/dotnet/RoverCommandCenter/.vs/RoverCommandCenter
+/dotnet/RoverCommandCenter/RoverCommandCenter/obj
+/dotnet/RoverCommandCenter/RoverCommandCenter/bin

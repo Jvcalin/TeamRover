@@ -8,9 +8,8 @@ from adafruit_esp32spi import adafruit_esp32spi_wifimanager
 import adafruit_esp32spi.adafruit_esp32spi_socket as socket
 
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
-#import adafruit_pybadger.pygamer as pygamer
+import adafruit_pybadger.pygamer as pygamer
 
-# Get wifi details and more from a secrets.py file
 try:
     from secrets import secrets
 except ImportError:
@@ -21,6 +20,8 @@ except ImportError:
 class MyMqtt:
 
     def __init__(self):
+        # Get wifi details and more from a secrets.py file
+
 
         esp32_cs = DigitalInOut(board.D13)
         esp32_ready = DigitalInOut(board.D11)
@@ -37,21 +38,20 @@ class MyMqtt:
         """Use below for Most Boards"""
         # status_light = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.2)  # Uncomment for Most Boards
 
-        self.status_light = None # pygamer.pygamerNeoPixels
+        #status_light = pygamer.pygamerNeoPixels
 
-        self.wifi = adafruit_esp32spi_wifimanager.ESPSPI_WiFiManager(self.esp, secrets, self.status_light)
+        self.wifi = adafruit_esp32spi_wifimanager.ESPSPI_WiFiManager(self.esp, secrets) #, status_light)
 
         ### Feeds ###
-        # self.status_feed = "roger/status/#"
-        # self.motor_cmd_feed = "roger/cmd/feather/motor"
-        # self.beep_cmd_feed = "roger/cmd/feather/beep"
-        # self.servo_cmd_feed = "roger/cmd/feather/servo"
+        self.status_feed = "roger/status/#"
+        self.motor_cmd_feed = "roger/cmd/feather/motor"
+        self.beep_cmd_feed = "roger/cmd/feather/beep"
+        self.servo_cmd_feed = "roger/cmd/feather/servo"
 
         # Connect to WiFi
         print("Connecting to WiFi...")
         self.wifi.connect()
         print("Connected!")
-        self.publishMessage("susie/status", "Susie has connected to Lisa")
 
         # Initialize MQTT interface with the esp interface
         MQTT.set_socket(socket, self.esp)
@@ -83,16 +83,20 @@ class MyMqtt:
         # successfully to the broker.
         print("Connected to {0}! Listening for topic changes on {1}".format(secrets["mqtt_broker"], self.status_feed))
         # Subscribe to all changes on the onoff_feed.
-        # client.subscribe(self.status_feed)
+        client.subscribe(self.status_feed)
+
 
     def disconnected(self, client, userdata, rc):
         # This method is called when the client is disconnected
-        print("Disconnected!")
+        print("Disconnected from Roger!")
+
 
     def message(self, client, topic, message):
         # This method is called when a topic the client is subscribed to
         # has a new message.
         print("New message on topic {0}: {1}".format(topic, message))
+
+
 
     def checkMessages(self):
         # Poll the message queue
